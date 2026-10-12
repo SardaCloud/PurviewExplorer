@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="assets/PurviewViewer-256.png" width="104" alt="Purview Configuration Viewer icon: the Sarda Cloud sheep with a magnifying glass">
+  <img src="assets/PurviewExplorer-256.png" width="104" alt="Purview Explorer icon: the Sarda Cloud sheep with a magnifying glass">
 </p>
 
-<h1 align="center">Purview Configuration Viewer</h1>
+<h1 align="center">Purview Explorer</h1>
 
 <p align="center">
   <b>Microsoft Purview configuration in a classic Windows application, one tab per solution.</b><br>
@@ -10,8 +10,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/SardaCloud/PurviewViewer/actions/workflows/build.yml"><img src="https://github.com/SardaCloud/PurviewViewer/actions/workflows/build.yml/badge.svg" alt="Build"></a>
-  <a href="https://github.com/SardaCloud/PurviewViewer/releases/latest"><img src="https://img.shields.io/github/v/release/SardaCloud/PurviewViewer" alt="Latest release"></a>
+  <a href="https://github.com/SardaCloud/PurviewExplorer/actions/workflows/build.yml"><img src="https://github.com/SardaCloud/PurviewExplorer/actions/workflows/build.yml/badge.svg" alt="Build"></a>
+  <a href="https://github.com/SardaCloud/PurviewExplorer/releases/latest"><img src="https://img.shields.io/github/v/release/SardaCloud/PurviewExplorer" alt="Latest release"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License"></a>
 </p>
 
@@ -36,14 +36,15 @@ The Microsoft Purview portal shows each policy on its own page, a few clicks dee
 advanced rules, label actions, endpoint DLP settings, file plan metadata) only through PowerShell. Reviewing a
 tenant's configuration, or comparing it with last month's, means a lot of clicking or a lot of scripting.
 
-Purview Configuration Viewer reads the configuration with the **read-only `Get-*` cmdlets** of Security &
+Purview Explorer reads the configuration with the **read-only `Get-*` cmdlets** of Security &
 Compliance PowerShell and shows it in a familiar Windows application: menu bar, toolbar, a tab per solution,
 list views, property sheets and a status bar. It **never changes anything** in the tenant; the session layer
 refuses to run any cmdlet that doesn't start with `Get-`.
 
 - **Everything in one place.** 12 solutions, 43 kinds of configuration object, with the relations between them.
 - **Offline snapshots.** Save the whole configuration to a diff-friendly JSON file and open it later, anywhere.
-- **One small file.** A 400 KB `PurviewViewer.exe` for .NET Framework 4.8, which is part of Windows.
+- **A setup that checks everything.** It checks the requirements, installs the PowerShell module if it's
+  missing, and confirms that Purview Explorer can load it. Or skip the setup: it's one 400 KB executable.
 
 ## Features
 
@@ -71,18 +72,58 @@ refuses to run any cmdlet that doesn't start with `Get-`.
 |---|---|---|
 | ![Summary](docs/images/summary.png) | ![Properties](docs/images/properties-dialog.png) | ![Connect](docs/images/connect-dialog.png) |
 
-## Download
+## Download and install
 
-Get `PurviewViewer-<version>.zip` from the [latest release](https://github.com/SardaCloud/PurviewViewer/releases/latest),
-unzip it anywhere and run `PurviewViewer.exe`. Nothing needs installing apart from the PowerShell module below.
+From the [latest release](https://github.com/SardaCloud/PurviewExplorer/releases/latest), get either:
 
-The executable isn't code-signed, so Windows SmartScreen may warn the first time you run it; choose **More
-info > Run anyway**, or build it yourself. Each release lists the SHA-256 hash of the zip in `SHA256SUMS.txt`.
+- **`PurviewExplorer-<version>-setup.exe`** (recommended): a setup wizard that checks the requirements and can
+  install what's missing; or
+- **`PurviewExplorer-<version>.zip`**: unzip it anywhere and run `PurviewExplorer.exe`; install the PowerShell
+  module yourself (see [Requirements](#requirements)).
+
+Neither the setup nor the executable is code-signed, so Windows SmartScreen may warn the first time; choose
+**More info > Run anyway**, or build them yourself. `SHA256SUMS.txt` in each release lists their SHA-256 hashes.
+
+### What the setup does
+
+| Welcome | System requirements | Checking the installation |
+|---|---|---|
+| ![Welcome](docs/images/setup-welcome.png) | ![Requirements](docs/images/setup-requirements.png) | ![Verification](docs/images/setup-verification.png) |
+
+1. Asks whether to install **for you only** (the default, no administrator rights needed, into
+   `%LOCALAPPDATA%\Programs\Sarda Cloud\Purview Explorer`) or **for all users** (into Program Files).
+2. **Checks the requirements** and shows what it found: Windows 10 version 1607 / Windows Server 2016 or later,
+   .NET Framework 4.8, Windows PowerShell 5.1 and the ExchangeOnlineManagement module 3.2.0 or later. It won't
+   continue without the first three, which are part of current Windows versions.
+3. If the module is missing or too old, offers to **install it from the PowerShell Gallery** (selected by
+   default): for the current user, or for all users when installing for all users.
+4. Installs Purview Explorer with a Start menu shortcut (and, if you choose, a desktop shortcut) and an entry
+   in **Installed apps** for uninstalling.
+5. **Checks the installation**: it runs `PurviewExplorer.exe /CheckPrerequisites`, which loads the module in the
+   application exactly as signing in would, and shows the result.
+
+Uninstalling removes the application and its shortcuts. It leaves your settings and the PowerShell module,
+which other tools may use.
+
+Setup supports the usual [Inno Setup command-line switches](https://jrsoftware.org/ishelp/topic_setupcmdline.htm)
+for unattended installs, for example:
+
+```text
+PurviewExplorer-<version>-setup.exe /VERYSILENT /CURRENTUSER                         install for the current user
+PurviewExplorer-<version>-setup.exe /VERYSILENT /ALLUSERS                            install for all users (elevated)
+PurviewExplorer-<version>-setup.exe /VERYSILENT /MERGETASKS="!installmodule"         don't install the module
+PurviewExplorer-<version>-setup.exe /VERYSILENT /LOG="C:\Temp\PurviewExplorer.log"   write a log, including the checks
+```
+
+A silent install stops if Windows, .NET Framework 4.8 or Windows PowerShell 5.1 is missing. The log records
+every check and the result of the installation check.
 
 ## Requirements
 
-- Windows 10 or 11, or Windows Server 2016 or later (.NET Framework 4.8 and Windows PowerShell 5.1 are built in).
-- The **ExchangeOnlineManagement** PowerShell module, version 3.2.0 or later:
+- Windows 10 version 1607 or later, Windows 11, or Windows Server 2016 or later (.NET Framework 4.8 and Windows
+  PowerShell 5.1 are built in).
+- The **ExchangeOnlineManagement** PowerShell module, version 3.2.0 or later. The setup can install it for you;
+  otherwise:
 
   ```powershell
   Install-Module ExchangeOnlineManagement -Scope CurrentUser
@@ -116,9 +157,11 @@ info > Run anyway**, or build it yourself. Each release lists the SHA-256 hash o
 Command line:
 
 ```text
-PurviewViewer.exe [snapshot.json]     open a snapshot
-PurviewViewer.exe /Demo               open the demo data
-PurviewViewer.exe /SelfTest:log.txt   drive the UI with the demo data and write PASS/FAIL lines (exit code 0 = all passed)
+PurviewExplorer.exe [snapshot.json]                  open a snapshot
+PurviewExplorer.exe /Demo                            open the demo data
+PurviewExplorer.exe /CheckPrerequisites[:report.txt] check that the module loads, without signing in; with a file name,
+                                                     write the report there instead of showing it (exit code 0 = ready)
+PurviewExplorer.exe /SelfTest:log.txt                drive the UI with the demo data and write PASS/FAIL lines (exit code 0 = all passed)
 ```
 
 ### Sign-in options
@@ -131,7 +174,7 @@ PurviewViewer.exe /SelfTest:log.txt   drive the UI with the demo data and write 
   and assigning it a Purview role.
 
 Settings (last environment, account, app ID, thumbprint, window position) are saved in
-`%APPDATA%\SardaCloud\PurviewViewer\settings.json`. No passwords, tokens or keys are stored.
+`%APPDATA%\SardaCloud\PurviewExplorer\settings.json`. No passwords, tokens or keys are stored.
 
 ## What is retrieved
 
@@ -181,7 +224,7 @@ Settings (last environment, account, app ID, thumbprint, window position) are sa
 | Alert Policies | Alert policies | `Get-ProtectionAlert` |
 | Permissions | Role groups | `Get-RoleGroup` |
 
-The list is defined in [`Catalog/PurviewCatalog.cs`](src/PurviewViewer/Catalog/PurviewCatalog.cs); adding a
+The list is defined in [`Catalog/PurviewCatalog.cs`](src/PurviewExplorer/Catalog/PurviewCatalog.cs); adding a
 collection is one entry (cmdlet, parameters, preferred columns and optional relations).
 
 ## How it works
@@ -196,7 +239,7 @@ application is started from PowerShell 7, PowerShell 7 module folders are remove
 
 ```json
 {
-  "format": "PurviewViewer.Snapshot",
+  "format": "PurviewExplorer.Snapshot",
   "formatVersion": 1,
   "createdUtc": "2026-10-12T18:00:00Z",
   "source": { "kind": "Live", "organization": "contoso.onmicrosoft.com", "account": "...", "tenantId": "..." },
@@ -215,11 +258,14 @@ A snapshot contains your tenant's configuration (names, addresses, conditions). 
 
 ## Building
 
-You need Windows and the .NET SDK (8 or later; it builds the `net48` project without Visual Studio).
+You need Windows and the .NET SDK (8 or later; it builds the `net48` project without Visual Studio). Building the
+setup also needs [Inno Setup 6](https://jrsoftware.org/isinfo.php) (`winget install JRSoftware.InnoSetup`).
 
 ```powershell
 .\build.ps1             # Release build + all tests
-.\build.ps1 -Package    # also artifacts\PurviewViewer-<version>.zip
+.\build.ps1 -Package    # also artifacts\PurviewExplorer-<version>.zip
+.\build.ps1 -Setup      # also artifacts\PurviewExplorer-<version>-setup.exe
+.\installer\test-setup.ps1 -Setup .\artifacts\PurviewExplorer-<version>-setup.exe   # install, check, uninstall
 ```
 
 The version comes from the `VERSION` file. The tests include an integration test that loads
@@ -227,9 +273,15 @@ ExchangeOnlineManagement in the hosted runspace (when the module is installed), 
 Connect-IPPSSession error path without network access, and one that runs `/SelfTest`, which drives every tab,
 collection, properties dialog, filter and snapshot round trip. CI installs the module so all of them run.
 
+CI also tests the setup twice: on the build machine, where the module is installed, and on a clean runner from
+which the module, PowerShellGet 2 and the NuGet provider have been removed, like a freshly installed Windows. There
+the setup must install the module from the PowerShell Gallery and confirm that Purview Explorer loads it.
+
 | Script | Purpose |
 |---|---|
-| `assets\make-assets.ps1` | Draws the icon and README logos from the Sarda Cloud logo |
+| `installer\PurviewExplorer.iss` | The Inno Setup script: requirement checks, module installation, verification |
+| `installer\test-setup.ps1` | Installs silently, checks files, shortcut, uninstall entry, checks and verification, then uninstalls |
+| `assets\make-assets.ps1` | Draws the icon, README logos and setup wizard images from the Sarda Cloud logo |
 | `tools\make-demo.ps1` | Regenerates the fictional demo snapshot (`pwsh`) |
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for how to add a collection and the rules of the house.
@@ -240,12 +292,15 @@ Please report vulnerabilities privately; see [SECURITY.md](SECURITY.md).
 
 ## License and trademarks
 
-Purview Configuration Viewer is released under the [MIT License](LICENSE).
+Purview Explorer is released under the [MIT License](LICENSE).
 
 The Sarda Cloud name and logo are trademarks of Sarda Cloud Srl and are not licensed under the MIT License.
 Microsoft, Microsoft Purview, Windows and PowerShell are trademarks of the Microsoft group of companies.
-Purview Configuration Viewer is an independent community tool and is not affiliated with or endorsed by
+Purview Explorer is an independent community tool and is not affiliated with or endorsed by
 Microsoft. The demo data describes a fictional company; any resemblance to a real organization is coincidental.
+
+Purview Explorer was called *Purview Configuration Viewer* in its first release (0.1.0). The setup is built with
+[Inno Setup](https://jrsoftware.org/isinfo.php); see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
 
 ---
 

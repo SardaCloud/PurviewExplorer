@@ -7,20 +7,23 @@
 
 <#
 .SYNOPSIS
-    Draws Purview Configuration Viewer's icon and the README logos from the Sarda Cloud logo.
+    Draws Purview Explorer's icon and the README logos from the Sarda Cloud logo.
 
 .DESCRIPTION
     Reads assets\source\sardacloud-logo.png (the white sheep and wordmark on a
     transparent background) and writes:
 
-        src\PurviewViewer\Resources\PurviewViewer.ico   the executable's icon, 16 to 256 px
-        assets\PurviewViewer-256.png                    the same icon as a picture, for the README
-        assets\sardacloud-logo-white.png                the logo for dark backgrounds
-        assets\sardacloud-logo-blue.png                 the logo for light backgrounds
+        src\PurviewExplorer\Resources\PurviewExplorer.ico   the executable's icon, 16 to 256 px
+        assets\PurviewExplorer-256.png                      the same icon as a picture, for the README
+        assets\sardacloud-logo-white.png                    the logo for dark backgrounds
+        assets\sardacloud-logo-blue.png                     the logo for light backgrounds
+        installer\images\wizard-*.png                       Setup's welcome-page panel, one per DPI step
+        installer\images\wizard-small-*.png                 Setup's top-right image, one per DPI step
 
     The icon is the sheep in white on Sarda Cloud blue, with a magnifying-glass
     badge from 24 px up. Run it again after changing the source logo; the output
-    is committed so a build needs nothing but the .NET SDK.
+    is committed so a build needs nothing but the .NET SDK (and Inno Setup for
+    the installer).
 
 .EXAMPLE
     .\assets\make-assets.ps1
@@ -30,7 +33,8 @@
 param(
     [string] $Source,
     [string] $Output,
-    [string] $IconPath
+    [string] $IconPath,
+    [string] $InstallerImages
 )
 
 Set-StrictMode -Version 2.0
@@ -38,9 +42,11 @@ $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Drawing
 if (-not $Source) { $Source = Join-Path $PSScriptRoot 'source\sardacloud-logo.png' }
 if (-not $Output) { $Output = $PSScriptRoot }
-if (-not $IconPath) { $IconPath = Join-Path $PSScriptRoot '..\src\PurviewViewer\Resources\PurviewViewer.ico' }
+if (-not $IconPath) { $IconPath = Join-Path $PSScriptRoot '..\src\PurviewExplorer\Resources\PurviewExplorer.ico' }
+if (-not $InstallerImages) { $InstallerImages = Join-Path $PSScriptRoot '..\installer\images' }
 
 $Blue  = [System.Drawing.Color]::FromArgb(255, 0x00, 0x66, 0xCC)   # www.sardacloud.com
+$DarkBlue = [System.Drawing.Color]::FromArgb(255, 0x00, 0x3D, 0x7A)
 $Teal  = [System.Drawing.Color]::FromArgb(255, 0x00, 0x7C, 0x89)
 $White = [System.Drawing.Color]::White
 
@@ -166,6 +172,34 @@ function New-IconImage([System.Drawing.Bitmap] $Sheep, [int] $Size) {
     return $c.Bitmap
 }
 
+# Setup's welcome-page panel: Sarda Cloud blue, the sheep, the product name and the community brand.
+function New-WizardImage([System.Drawing.Bitmap] $Sheep, [int] $Width, [int] $Height) {
+    $c = New-Canvas $Width $Height
+    $g = $c.Graphics
+    $g.TextRenderingHint = [System.Drawing.Text.TextRenderingHint]::AntiAliasGridFit
+    $rect = New-Object System.Drawing.Rectangle(0, 0, $Width, $Height)
+    $bg = New-Object System.Drawing.Drawing2D.LinearGradientBrush($rect, $Blue, $DarkBlue, [single]90)
+    $g.FillRectangle($bg, $rect)
+
+    $sw = $Width * 0.70
+    $sh = $Sheep.Height * $sw / $Sheep.Width
+    $g.DrawImage($Sheep, [single](($Width - $sw) / 2), [single]($Height * 0.20), [single]$sw, [single]$sh)
+
+    $u = $Height / 386.0
+    $format = New-Object System.Drawing.StringFormat
+    $format.Alignment = [System.Drawing.StringAlignment]::Center
+    $titleFont = New-Object System.Drawing.Font('Segoe UI Semibold', [single](17 * $u), [System.Drawing.FontStyle]::Regular, [System.Drawing.GraphicsUnit]::Pixel)
+    $brandFont = New-Object System.Drawing.Font('Segoe UI', [single](11.5 * $u), [System.Drawing.FontStyle]::Regular, [System.Drawing.GraphicsUnit]::Pixel)
+    $whiteBrush = New-Object System.Drawing.SolidBrush($White)
+    $softBrush = New-Object System.Drawing.SolidBrush([System.Drawing.Color]::FromArgb(215, 255, 255, 255))
+    $top = $Height * 0.20 + $sh + 18 * $u
+    $g.DrawString('Purview Explorer', $titleFont, $whiteBrush, (New-Object System.Drawing.RectangleF(0, [single]$top, $Width, [single](30 * $u))), $format)
+    $g.DrawString('Sarda Cloud Community', $brandFont, $softBrush, (New-Object System.Drawing.RectangleF(0, [single]($Height - 34 * $u), $Width, [single](20 * $u))), $format)
+
+    $titleFont.Dispose(); $brandFont.Dispose(); $whiteBrush.Dispose(); $softBrush.Dispose(); $format.Dispose(); $bg.Dispose(); $g.Dispose()
+    return $c.Bitmap
+}
+
 function Get-PngBytes([System.Drawing.Bitmap] $Bitmap) {
     $ms = New-Object System.IO.MemoryStream
     $Bitmap.Save($ms, [System.Drawing.Imaging.ImageFormat]::Png)
@@ -205,18 +239,34 @@ try {
     foreach ($size in 256, 128, 64, 48, 32, 24, 20, 16) {
         $bmp = New-IconImage $sheep $size
         [void]$images.Add([pscustomobject]@{ Size = $size; Bytes = (Get-PngBytes $bmp) })
-        if ($size -eq 256) { $bmp.Save((Join-Path $Output 'PurviewViewer-256.png'), [System.Drawing.Imaging.ImageFormat]::Png) }
+        if ($size -eq 256) { $bmp.Save((Join-Path $Output 'PurviewExplorer-256.png'), [System.Drawing.Imaging.ImageFormat]::Png) }
         $bmp.Dispose()
     }
     Write-Icon ([System.IO.Path]::GetFullPath($IconPath)) $images
 
-    $white = Get-Resized $logo 480
-    $white.Save((Join-Path $Output 'sardacloud-logo-white.png'), [System.Drawing.Imaging.ImageFormat]::Png)
-    $blue = New-Tinted $white $Blue
-    $blue.Save((Join-Path $Output 'sardacloud-logo-blue.png'), [System.Drawing.Imaging.ImageFormat]::Png)
-    $white.Dispose(); $blue.Dispose(); $sheep.Dispose()
+    $whiteLogo = Get-Resized $logo 480
+    $whiteLogo.Save((Join-Path $Output 'sardacloud-logo-white.png'), [System.Drawing.Imaging.ImageFormat]::Png)
+    $blueLogo = New-Tinted $whiteLogo $Blue
+    $blueLogo.Save((Join-Path $Output 'sardacloud-logo-blue.png'), [System.Drawing.Imaging.ImageFormat]::Png)
+    $whiteLogo.Dispose(); $blueLogo.Dispose()
+
+    # Inno Setup picks the image closest to the area it has at the current DPI (sizes from its documentation).
+    New-Item -ItemType Directory -Force -Path $InstallerImages | Out-Null
+    Get-ChildItem $InstallerImages -Filter 'wizard-*.png' | Remove-Item
+    $large = @(@(202, 386), @(269, 515), @(336, 643), @(403, 772), @(430, 824), @(498, 953), @(534, 1022))
+    foreach ($s in $large) {
+        $bmp = New-WizardImage $sheep $s[0] $s[1]
+        $bmp.Save((Join-Path $InstallerImages ('wizard-{0}x{1}.png' -f $s[0], $s[1])), [System.Drawing.Imaging.ImageFormat]::Png)
+        $bmp.Dispose()
+    }
+    foreach ($size in 58, 77, 97, 116, 124, 143, 159) {
+        $bmp = New-IconImage $sheep $size
+        $bmp.Save((Join-Path $InstallerImages ('wizard-small-{0}.png' -f $size)), [System.Drawing.Imaging.ImageFormat]::Png)
+        $bmp.Dispose()
+    }
+    $sheep.Dispose()
 }
 finally { $logo.Dispose() }
 
-@(Get-ChildItem $Output -File | Where-Object Extension -eq '.png') + @(Get-Item $IconPath) |
+@(Get-ChildItem $Output -File | Where-Object Extension -eq '.png') + @(Get-Item $IconPath) + @(Get-ChildItem $InstallerImages -Filter *.png) |
     ForEach-Object { '{0,-28} {1,8:N0} bytes' -f $_.Name, $_.Length }

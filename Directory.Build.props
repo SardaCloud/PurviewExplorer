@@ -15,22 +15,22 @@
 
   <!-- One version for everything, read from the VERSION file at the root. -->
   <PropertyGroup>
-    <PurviewViewerVersion>$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)VERSION').Trim())</PurviewViewerVersion>
-    <Version>$(PurviewViewerVersion)</Version>
-    <AssemblyVersion>$(PurviewViewerVersion).0</AssemblyVersion>
-    <FileVersion>$(PurviewViewerVersion).0</FileVersion>
-    <InformationalVersion>$(PurviewViewerVersion)</InformationalVersion>
+    <PurviewExplorerVersion>$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)VERSION').Trim())</PurviewExplorerVersion>
+    <Version>$(PurviewExplorerVersion)</Version>
+    <AssemblyVersion>$(PurviewExplorerVersion).0</AssemblyVersion>
+    <FileVersion>$(PurviewExplorerVersion).0</FileVersion>
+    <InformationalVersion>$(PurviewExplorerVersion)</InformationalVersion>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
 
   <PropertyGroup>
-    <Product>Purview Configuration Viewer</Product>
+    <Product>Purview Explorer</Product>
     <Company>Sarda Cloud Community</Company>
     <Authors>Francesco Valerio Buccoli</Authors>
     <Copyright>Copyright (C) 2026 Francesco Valerio Buccoli</Copyright>
     <Description>Read-only viewer for Microsoft Purview configuration, one tab per solution.</Description>
-    <PackageProjectUrl>https://github.com/SardaCloud/PurviewViewer</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/SardaCloud/PurviewViewer</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/SardaCloud/PurviewExplorer</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/SardaCloud/PurviewExplorer</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 

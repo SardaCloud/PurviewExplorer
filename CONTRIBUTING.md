@@ -13,23 +13,30 @@ For a security problem, follow [SECURITY.md](SECURITY.md) instead.
 
 ## Building and testing
 
-You need Windows and the .NET SDK 8 or later.
+You need Windows and the .NET SDK 8 or later; for the setup, also Inno Setup 6 (`winget install JRSoftware.InnoSetup`).
 
 ```powershell
 .\build.ps1             # build Release and run the tests
-.\build.ps1 -Package    # also artifacts\PurviewViewer-<version>.zip
+.\build.ps1 -Package    # also artifacts\PurviewExplorer-<version>.zip
+.\build.ps1 -Setup      # also artifacts\PurviewExplorer-<version>-setup.exe
+.\installer\test-setup.ps1 -Setup .\artifacts\PurviewExplorer-<version>-setup.exe
 ```
 
 The integration tests load ExchangeOnlineManagement in the hosted runspace when it's installed
-(`Install-Module ExchangeOnlineManagement -Scope CurrentUser`); without it they pass without checking anything.
-The UI self-test (`PurviewViewer.exe /SelfTest:log.txt`) drives every tab and collection with the demo data.
+(`Install-Module ExchangeOnlineManagement -Scope CurrentUser`); without it they only check that its absence is
+reported. The UI self-test (`PurviewExplorer.exe /SelfTest:log.txt`) drives every tab and collection with the demo
+data. `installer\test-setup.ps1` installs the setup silently for the current user into a temporary folder, checks
+the result and uninstalls it; it refuses to run if Purview Explorer is already installed for you.
+
+When you change the setup's pages, go through every page yourself at your display scaling; Inno Setup's Pascal
+Script reports some mistakes only at run time.
 
 ## Adding a collection
 
-1. Add an entry to the solution in `src/PurviewViewer/Catalog/PurviewCatalog.cs`: cmdlet, parameters, preferred
+1. Add an entry to the solution in `src/PurviewExplorer/Catalog/PurviewCatalog.cs`: cmdlet, parameters, preferred
    columns, and optionally a sort property, a parent property (for hierarchies) or relations to other collections.
 2. Add representative, fictional items to `tools/make-demo.ps1`, run `pwsh -File tools\make-demo.ps1`, and commit
-   the regenerated `src/PurviewViewer/Resources/demo-snapshot.json`. A test checks that the demo data covers every
+   the regenerated `src/PurviewExplorer/Resources/demo-snapshot.json`. A test checks that the demo data covers every
    collection.
 3. Add the row to the table in the README and an entry to the CHANGELOG.
 

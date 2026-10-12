@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to release, without the leading v (e.g. 0.1.0). Must match VERSION.'
+        description: 'Version to release, without the leading v (e.g. 0.2.0). Must match VERSION.'
         required: true
       draft:
         description: 'Create the release as a draft'
@@ -21,7 +21,7 @@ permissions:
 
 jobs:
   build:
-    name: Build and test
+    name: Build, test and package
     runs-on: windows-2022
 
     steps:
@@ -41,7 +41,7 @@ jobs:
             Write-Host "::error::Releasing $v, but the VERSION file says $file."
             exit 1
           }
-          Write-Host "Releasing Purview Configuration Viewer $v"
+          Write-Host "Releasing Purview Explorer $v"
 
       - name: Install ExchangeOnlineManagement
         shell: powershell
@@ -49,19 +49,50 @@ jobs:
           Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser | Out-Null
           Install-Module ExchangeOnlineManagement -Scope CurrentUser -Force -AllowClobber
 
-      - name: Build, test and package
+      - name: Build, test, package and build the setup
         shell: pwsh
-        run: .\build.ps1 -Package
+        run: .\build.ps1 -Package -Setup
+
+      - name: Test the setup (module already installed)
+        shell: pwsh
+        run: |
+          .\installer\test-setup.ps1 -Setup (Get-ChildItem artifacts\PurviewExplorer-*-setup.exe)[0].FullName
+          exit $LASTEXITCODE
 
       - uses: actions/upload-artifact@v7
         with:
           name: pkg
-          path: artifacts/PurviewViewer-*.zip
+          path: |
+            artifacts/PurviewExplorer-*.zip
+            artifacts/PurviewExplorer-*-setup.exe
           if-no-files-found: error
+
+  setup-clean-machine:
+    name: Test the setup on a clean machine
+    needs: build
+    runs-on: windows-2022
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: pkg
+          path: artifacts
+
+      - name: Make the runner look like a fresh Windows
+        shell: pwsh
+        run: .\installer\make-runner-clean.ps1
+
+      - name: Install, verify and uninstall
+        shell: pwsh
+        run: |
+          .\installer\test-setup.ps1 -Setup (Get-ChildItem artifacts\PurviewExplorer-*-setup.exe)[0].FullName -ExpectModuleInstall
+          exit $LASTEXITCODE
 
   release:
     name: Publish the release
-    needs: build
+    needs: [build, setup-clean-machine]
     runs-on: ubuntu-latest
 
     steps:
@@ -82,7 +113,7 @@ jobs:
       - name: Checksums
         working-directory: dist
         run: |
-          sha256sum PurviewViewer-*.zip | tee SHA256SUMS.txt
+          sha256sum PurviewExplorer-* | tee SHA256SUMS.txt
           ls -la
 
       # The notes are this version's CHANGELOG section followed by a footer kept in docs/, with VERSION replaced.
@@ -90,7 +121,7 @@ jobs:
         run: |
           V='${{ steps.v.outputs.version }}'
           awk -v v="$V" '/^## \[/ { p = (index($0, "## [" v "]") == 1) } /^\[[0-9]/ { p = 0 } p' CHANGELOG.md > notes.md
-          [ -s notes.md ] || echo "Purview Configuration Viewer $V." > notes.md
+          [ -s notes.md ] || echo "Purview Explorer $V." > notes.md
           echo >> notes.md
           sed "s/VERSION/$V/g" docs/release-notes-footer.md >> notes.md
           cat notes.md
@@ -98,11 +129,12 @@ jobs:
       - uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{ steps.v.outputs.version }}
-          name: Purview Configuration Viewer ${{ steps.v.outputs.version }}
+          name: Purview Explorer ${{ steps.v.outputs.version }}
           body_path: notes.md
           draft: ${{ github.event.inputs.draft == 'true' }}
           prerelease: ${{ startsWith(steps.v.outputs.version, '0.') }}
           fail_on_unmatched_files: true
           files: |
-            dist/PurviewViewer-*.zip
+            dist/PurviewExplorer-*.zip
+            dist/PurviewExplorer-*-setup.exe
             dist/SHA256SUMS.txt

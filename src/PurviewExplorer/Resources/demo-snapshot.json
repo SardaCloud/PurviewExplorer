@@ -1,0 +1,2531 @@
+{
+  "format": "PurviewExplorer.Snapshot",
+  "formatVersion": 1,
+  "application": "Purview Explorer (demo data generator)",
+  "createdUtc": "2026-10-01T09:00:00Z",
+  "source": {
+    "kind": "Demo",
+    "organization": "contoso.onmicrosoft.com",
+    "account": "meganb@contoso.onmicrosoft.com",
+    "tenantId": "ad2b54ff-0639-5bfd-ea92-309906e9dc5b",
+    "environment": "Microsoft 365 (Commercial / GCC)",
+    "moduleVersion": "3.10.1"
+  },
+  "collections": {
+    "InformationProtection.SensitivityLabels": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 2.8,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Public",
+          "DisplayName": "Public",
+          "Priority": 0,
+          "ParentId": "",
+          "ContentType": "File, Email, Site, UnifiedGroup, SchematizedData",
+          "Tooltip": "Business data that is specifically prepared and approved for public consumption.",
+          "Comment": "",
+          "Disabled": false,
+          "Mode": "Enforce",
+          "Workload": "Exchange, SharePoint, Intune, ModernGroup, OneDriveForBusiness",
+          "Settings": [
+            "[color, #317100]",
+            "[isparent, True]"
+          ],
+          "LocaleSettings": [
+            "{\"LocaleKey\":\"DisplayName\",\"Settings\":[{\"Key\":\"it-it\",\"Value\":\"Public\"}]}"
+          ],
+          "Guid": "be16786e-dc28-1274-9e89-403108cc99c7",
+          "Identity": "be16786e-dc28-1274-9e89-403108cc99c7",
+          "ImmutableId": "be16786e-dc28-1274-9e89-403108cc99c7",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z",
+          "LabelActions": [],
+          "EncryptionEnabled": false,
+          "ContentMarkingHeaderEnabled": false
+        },
+        {
+          "Name": "General",
+          "DisplayName": "General",
+          "Priority": 1,
+          "ParentId": "",
+          "ContentType": "File, Email, Site, UnifiedGroup, SchematizedData",
+          "Tooltip": "Business data that is not intended for public consumption.",
+          "Comment": "",
+          "Disabled": false,
+          "Mode": "Enforce",
+          "Workload": "Exchange, SharePoint, Intune, ModernGroup, OneDriveForBusiness",
+          "Settings": [
+            "[color, #0078D4]",
+            "[isparent, True]"
+          ],
+          "LocaleSettings": [
+            "{\"LocaleKey\":\"DisplayName\",\"Settings\":[{\"Key\":\"it-it\",\"Value\":\"General\"}]}"
+          ],
+          "Guid": "d037a048-e2f2-ca6f-8a77-e475fcc407d2",
+          "Identity": "d037a048-e2f2-ca6f-8a77-e475fcc407d2",
+          "ImmutableId": "d037a048-e2f2-ca6f-8a77-e475fcc407d2",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z",
+          "LabelActions": [
+            "{\"Type\":\"applycontentmarking\",\"SubType\":\"footer\",\"Settings\":[{\"Key\":\"text\",\"Value\":\"Classified as General\"},{\"Key\":\"fontsize\",\"Value\":\"8\"},{\"Key\":\"fontcolor\",\"Value\":\"#000000\"},{\"Key\":\"alignment\",\"Value\":\"Center\"}]}"
+          ],
+          "EncryptionEnabled": false,
+          "ContentMarkingFooterEnabled": true,
+          "ContentMarkingFooterText": "Classified as General"
+        },
+        {
+          "Name": "Confidential",
+          "DisplayName": "Confidential",
+          "Priority": 2,
+          "ParentId": "",
+          "ContentType": "File, Email, Site, UnifiedGroup, SchematizedData",
+          "Tooltip": "Sensitive business data that could cause damage to the business if shared with unauthorized people.",
+          "Comment": "",
+          "Disabled": false,
+          "Mode": "Enforce",
+          "Workload": "Exchange, SharePoint, Intune, ModernGroup, OneDriveForBusiness",
+          "Settings": [
+            "[color, #FF8C00]",
+            "[isparent, True]"
+          ],
+          "LocaleSettings": [
+            "{\"LocaleKey\":\"DisplayName\",\"Settings\":[{\"Key\":\"it-it\",\"Value\":\"Confidential\"}]}"
+          ],
+          "Guid": "42d74465-2d62-1126-1888-58e1404b31c2",
+          "Identity": "42d74465-2d62-1126-1888-58e1404b31c2",
+          "ImmutableId": "42d74465-2d62-1126-1888-58e1404b31c2",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z",
+          "LabelActions": [],
+          "EncryptionEnabled": false
+        },
+        {
+          "Name": "Confidential-AllEmployees",
+          "DisplayName": "All Employees",
+          "Priority": 3,
+          "ParentId": "42d74465-2d62-1126-1888-58e1404b31c2",
+          "ContentType": "File, Email, Site, UnifiedGroup, SchematizedData",
+          "Tooltip": "Confidential data that requires protection, which allows all employees full permissions.",
+          "Comment": "",
+          "Disabled": false,
+          "Mode": "Enforce",
+          "Workload": "Exchange, SharePoint, Intune, ModernGroup, OneDriveForBusiness",
+          "Settings": [
+            "[color, #FF8C00]",
+            "[isparent, False]"
+          ],
+          "LocaleSettings": [
+            "{\"LocaleKey\":\"DisplayName\",\"Settings\":[{\"Key\":\"it-it\",\"Value\":\"All Employees\"}]}"
+          ],
+          "Guid": "70c49abb-bb0c-a16a-a34b-01e33da640db",
+          "Identity": "70c49abb-bb0c-a16a-a34b-01e33da640db",
+          "ImmutableId": "70c49abb-bb0c-a16a-a34b-01e33da640db",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z",
+          "LabelActions": [
+            "{\"Type\":\"encrypt\",\"SubType\":null,\"Settings\":[{\"Key\":\"protectiontype\",\"Value\":\"template\"},{\"Key\":\"contentexpiredondateindaysornever\",\"Value\":\"Never\"},{\"Key\":\"offlineaccessdays\",\"Value\":\"30\"},{\"Key\":\"rightsdefinitions\",\"Value\":\"[{\\\"Identity\\\":\\\"AllStaff-7184AB3F-CCD1-46F3-8233-3E09E9CF0E66@contoso.onmicrosoft.com\\\",\\\"Rights\\\":\\\"VIEW,VIEWRIGHTSDATA,DOCEDIT,EDIT,PRINT,EXTRACT,REPLY,REPLYALL,FORWARD,OBJMODEL\\\"}]\"}]}",
+            "{\"Type\":\"applycontentmarking\",\"SubType\":\"header\",\"Settings\":[{\"Key\":\"text\",\"Value\":\"Confidential - All Employees\"},{\"Key\":\"fontsize\",\"Value\":\"10\"},{\"Key\":\"fontcolor\",\"Value\":\"#FF8C00\"},{\"Key\":\"alignment\",\"Value\":\"Left\"}]}"
+          ],
+          "EncryptionEnabled": true,
+          "EncryptionProtectionType": "Template",
+          "EncryptionOfflineAccessDays": 30,
+          "ContentMarkingHeaderEnabled": true,
+          "ContentMarkingHeaderText": "Confidential - All Employees"
+        },
+        {
+          "Name": "Confidential-SpecificPeople",
+          "DisplayName": "Specific People",
+          "Priority": 4,
+          "ParentId": "42d74465-2d62-1126-1888-58e1404b31c2",
+          "ContentType": "File, Email, Site, UnifiedGroup, SchematizedData",
+          "Tooltip": "Confidential data that requires protection. Users choose who can access it.",
+          "Comment": "",
+          "Disabled": false,
+          "Mode": "Enforce",
+          "Workload": "Exchange, SharePoint, Intune, ModernGroup, OneDriveForBusiness",
+          "Settings": [
+            "[color, #FF8C00]",
+            "[isparent, False]"
+          ],
+          "LocaleSettings": [
+            "{\"LocaleKey\":\"DisplayName\",\"Settings\":[{\"Key\":\"it-it\",\"Value\":\"Specific People\"}]}"
+          ],
+          "Guid": "33258994-b205-e39b-0fb9-c051514ae9e7",
+          "Identity": "33258994-b205-e39b-0fb9-c051514ae9e7",
+          "ImmutableId": "33258994-b205-e39b-0fb9-c051514ae9e7",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z",
+          "LabelActions": [
+            "{\"Type\":\"encrypt\",\"SubType\":null,\"Settings\":[{\"Key\":\"protectiontype\",\"Value\":\"userdefined\"},{\"Key\":\"promptuser\",\"Value\":\"true\"},{\"Key\":\"doublekeyencryptionurl\",\"Value\":\"\"}]}"
+          ],
+          "EncryptionEnabled": true,
+          "EncryptionProtectionType": "UserDefined",
+          "EncryptionPromptUser": true
+        },
+        {
+          "Name": "Confidential-Partners",
+          "DisplayName": "Trusted Partners",
+          "Priority": 5,
+          "ParentId": "42d74465-2d62-1126-1888-58e1404b31c2",
+          "ContentType": "File, Email, Site, UnifiedGroup, SchematizedData",
+          "Tooltip": "Confidential data shared with Fabrikam and Northwind Traders under NDA.",
+          "Comment": "",
+          "Disabled": false,
+          "Mode": "Enforce",
+          "Workload": "Exchange, SharePoint, Intune, ModernGroup, OneDriveForBusiness",
+          "Settings": [
+            "[color, #FF8C00]",
+            "[isparent, False]"
+          ],
+          "LocaleSettings": [
+            "{\"LocaleKey\":\"DisplayName\",\"Settings\":[{\"Key\":\"it-it\",\"Value\":\"Trusted Partners\"}]}"
+          ],
+          "Guid": "d1e098a3-bfc3-9c43-6339-fc903bbaeceb",
+          "Identity": "d1e098a3-bfc3-9c43-6339-fc903bbaeceb",
+          "ImmutableId": "d1e098a3-bfc3-9c43-6339-fc903bbaeceb",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z",
+          "LabelActions": [
+            "{\"Type\":\"encrypt\",\"SubType\":null,\"Settings\":[{\"Key\":\"protectiontype\",\"Value\":\"template\"},{\"Key\":\"rightsdefinitions\",\"Value\":\"[{\\\"Identity\\\":\\\"fabrikam.com\\\",\\\"Rights\\\":\\\"VIEW,VIEWRIGHTSDATA,REPLY,REPLYALL\\\"},{\\\"Identity\\\":\\\"northwindtraders.com\\\",\\\"Rights\\\":\\\"VIEW,VIEWRIGHTSDATA\\\"}]\"}]}"
+          ],
+          "EncryptionEnabled": true,
+          "EncryptionProtectionType": "Template"
+        },
+        {
+          "Name": "HighlyConfidential",
+          "DisplayName": "Highly Confidential",
+          "Priority": 6,
+          "ParentId": "",
+          "ContentType": "File, Email, Site, UnifiedGroup, SchematizedData",
+          "Tooltip": "Very sensitive business data that would cause damage to the business if it was shared with unauthorized people.",
+          "Comment": "",
+          "Disabled": false,
+          "Mode": "Enforce",
+          "Workload": "Exchange, SharePoint, Intune, ModernGroup, OneDriveForBusiness",
+          "Settings": [
+            "[color, #C50F1F]",
+            "[isparent, True]"
+          ],
+          "LocaleSettings": [
+            "{\"LocaleKey\":\"DisplayName\",\"Settings\":[{\"Key\":\"it-it\",\"Value\":\"Highly Confidential\"}]}"
+          ],
+          "Guid": "71bf0eed-e8f0-8561-7cc1-3028d0af8b80",
+          "Identity": "71bf0eed-e8f0-8561-7cc1-3028d0af8b80",
+          "ImmutableId": "71bf0eed-e8f0-8561-7cc1-3028d0af8b80",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z",
+          "LabelActions": [],
+          "EncryptionEnabled": false
+        },
+        {
+          "Name": "HighlyConfidential-AllEmployees",
+          "DisplayName": "All Employees",
+          "Priority": 7,
+          "ParentId": "71bf0eed-e8f0-8561-7cc1-3028d0af8b80",
+          "ContentType": "File, Email, Site, UnifiedGroup, SchematizedData",
+          "Tooltip": "Highly confidential data that allows all employees view, edit, and reply permissions.",
+          "Comment": "",
+          "Disabled": false,
+          "Mode": "Enforce",
+          "Workload": "Exchange, SharePoint, Intune, ModernGroup, OneDriveForBusiness",
+          "Settings": [
+            "[color, #C50F1F]",
+            "[isparent, False]"
+          ],
+          "LocaleSettings": [
+            "{\"LocaleKey\":\"DisplayName\",\"Settings\":[{\"Key\":\"it-it\",\"Value\":\"All Employees\"}]}"
+          ],
+          "Guid": "ffcb95f6-78fa-5ba7-99c9-094313f9f516",
+          "Identity": "ffcb95f6-78fa-5ba7-99c9-094313f9f516",
+          "ImmutableId": "ffcb95f6-78fa-5ba7-99c9-094313f9f516",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z",
+          "LabelActions": [
+            "{\"Type\":\"applywatermarking\",\"SubType\":null,\"Settings\":[{\"Key\":\"text\",\"Value\":\"HIGHLY CONFIDENTIAL\"},{\"Key\":\"fontsize\",\"Value\":\"40\"},{\"Key\":\"layout\",\"Value\":\"Diagonal\"}]}"
+          ],
+          "EncryptionEnabled": true,
+          "EncryptionProtectionType": "Template",
+          "ContentMarkingWaterMarkEnabled": true,
+          "ContentMarkingWaterMarkText": "HIGHLY CONFIDENTIAL"
+        },
+        {
+          "Name": "HighlyConfidential-SpecificPeople",
+          "DisplayName": "Specific People",
+          "Priority": 8,
+          "ParentId": "71bf0eed-e8f0-8561-7cc1-3028d0af8b80",
+          "ContentType": "File, Email, Site, UnifiedGroup, SchematizedData",
+          "Tooltip": "Highly confidential data that requires protection. Users choose who can access it.",
+          "Comment": "",
+          "Disabled": false,
+          "Mode": "Enforce",
+          "Workload": "Exchange, SharePoint, Intune, ModernGroup, OneDriveForBusiness",
+          "Settings": [
+            "[color, #C50F1F]",
+            "[isparent, False]"
+          ],
+          "LocaleSettings": [
+            "{\"LocaleKey\":\"DisplayName\",\"Settings\":[{\"Key\":\"it-it\",\"Value\":\"Specific People\"}]}"
+          ],
+          "Guid": "59044689-3c25-e8c0-51f9-7b88db741bdc",
+          "Identity": "59044689-3c25-e8c0-51f9-7b88db741bdc",
+          "ImmutableId": "59044689-3c25-e8c0-51f9-7b88db741bdc",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z",
+          "LabelActions": [],
+          "EncryptionEnabled": true,
+          "EncryptionProtectionType": "UserDefined",
+          "EncryptionDoNotForward": true
+        },
+        {
+          "Name": "HighlyConfidential-Project-Falcon",
+          "DisplayName": "Project Falcon",
+          "Priority": 9,
+          "ParentId": "71bf0eed-e8f0-8561-7cc1-3028d0af8b80",
+          "ContentType": "File, Email, Site, UnifiedGroup, SchematizedData",
+          "Tooltip": "Restricted to members of the Project Falcon team.",
+          "Comment": "",
+          "Disabled": false,
+          "Mode": "Enforce",
+          "Workload": "Exchange, SharePoint, Intune, ModernGroup, OneDriveForBusiness",
+          "Settings": [
+            "[color, #C50F1F]",
+            "[isparent, False]"
+          ],
+          "LocaleSettings": [
+            "{\"LocaleKey\":\"DisplayName\",\"Settings\":[{\"Key\":\"it-it\",\"Value\":\"Project Falcon\"}]}"
+          ],
+          "Guid": "b74b64d3-aff2-87e4-3649-0e925c91973e",
+          "Identity": "b74b64d3-aff2-87e4-3649-0e925c91973e",
+          "ImmutableId": "b74b64d3-aff2-87e4-3649-0e925c91973e",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z",
+          "LabelActions": [],
+          "EncryptionEnabled": true,
+          "EncryptionProtectionType": "Template",
+          "SiteAndGroupProtectionEnabled": true,
+          "SiteAndGroupProtectionPrivacy": "Private",
+          "SiteExternalSharingControlType": "Disabled"
+        }
+      ]
+    },
+    "InformationProtection.LabelPolicies": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 1.4,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Global sensitivity label policy",
+          "Priority": 0,
+          "Mode": "Enforce",
+          "Enabled": true,
+          "Type": "PublishedSensitivityLabel",
+          "Labels": [
+            "Public",
+            "General",
+            "Confidential",
+            "Confidential-AllEmployees",
+            "Confidential-SpecificPeople",
+            "HighlyConfidential",
+            "HighlyConfidential-AllEmployees",
+            "HighlyConfidential-SpecificPeople"
+          ],
+          "ExchangeLocation": [
+            "All"
+          ],
+          "ModernGroupLocation": [],
+          "Settings": [
+            "[requiredowngradejustification, true]",
+            "[defaultlabelid, d037a048-e2f2-ca6f-8a77-e475fcc407d2]",
+            "[mandatory, false]",
+            "[siteandgroupmandatory, false]",
+            "[outlookdefaultlabel, None]",
+            "[powerbimandatory, false]"
+          ],
+          "DistributionStatus": "Success",
+          "Workload": "Exchange",
+          "Guid": "04574a53-3d63-ac27-bb5e-0a9283781bc2",
+          "Identity": "04574a53-3d63-ac27-bb5e-0a9283781bc2",
+          "ImmutableId": "04574a53-3d63-ac27-bb5e-0a9283781bc2",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        },
+        {
+          "Name": "Project Falcon label policy",
+          "Priority": 1,
+          "Mode": "Enforce",
+          "Enabled": true,
+          "Type": "PublishedSensitivityLabel",
+          "Labels": [
+            "Confidential-Partners",
+            "HighlyConfidential-Project-Falcon"
+          ],
+          "ExchangeLocation": [
+            "falcon-team@contoso.com"
+          ],
+          "ModernGroupLocation": [
+            "falcon-team@contoso.com"
+          ],
+          "Settings": [
+            "[requiredowngradejustification, true]",
+            "[mandatory, true]"
+          ],
+          "DistributionStatus": "Success",
+          "Workload": "Exchange",
+          "Guid": "bd832928-8682-f7fc-a447-019fc74892ac",
+          "Identity": "bd832928-8682-f7fc-a447-019fc74892ac",
+          "ImmutableId": "bd832928-8682-f7fc-a447-019fc74892ac",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        }
+      ]
+    },
+    "InformationProtection.AutoLabelingPolicies": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 1.1,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Credit card numbers in SharePoint and OneDrive",
+          "Priority": 0,
+          "Mode": "TestWithoutNotifications",
+          "Enabled": true,
+          "ApplySensitivityLabel": "Confidential-AllEmployees",
+          "Workload": "SharePoint, OneDriveForBusiness",
+          "SharePointLocation": [
+            "All"
+          ],
+          "OneDriveLocation": [
+            "All"
+          ],
+          "DistributionStatus": "Success",
+          "Guid": "b3db122a-e4ab-851e-ce6e-2054fd52a1dc",
+          "Identity": "b3db122a-e4ab-851e-ce6e-2054fd52a1dc",
+          "ImmutableId": "b3db122a-e4ab-851e-ce6e-2054fd52a1dc",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        },
+        {
+          "Name": "Passport numbers in email",
+          "Priority": 1,
+          "Mode": "Enable",
+          "Enabled": true,
+          "ApplySensitivityLabel": "HighlyConfidential-AllEmployees",
+          "Workload": "Exchange",
+          "ExchangeLocation": [
+            "All"
+          ],
+          "DistributionStatus": "Success",
+          "Guid": "27e477c0-3b40-8d75-ed72-17762b35b196",
+          "Identity": "27e477c0-3b40-8d75-ed72-17762b35b196",
+          "ImmutableId": "27e477c0-3b40-8d75-ed72-17762b35b196",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        }
+      ]
+    },
+    "InformationProtection.AutoLabelingRules": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 1.3,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Credit card numbers - high count",
+          "ParentPolicyName": "Credit card numbers in SharePoint and OneDrive",
+          "Policy": "b3db122a-e4ab-851e-ce6e-2054fd52a1dc",
+          "Priority": 0,
+          "Mode": "TestWithoutNotifications",
+          "Disabled": false,
+          "Workload": "SharePoint",
+          "ContentContainsSensitiveInformation": [
+            {
+              "name": "Credit Card Number",
+              "mincount": "10",
+              "maxcount": "-1",
+              "minconfidence": "85",
+              "maxconfidence": "100"
+            }
+          ],
+          "Guid": "1144da27-c719-043a-17fd-e6c7573cfd6b",
+          "Identity": "1144da27-c719-043a-17fd-e6c7573cfd6b",
+          "ImmutableId": "1144da27-c719-043a-17fd-e6c7573cfd6b",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        },
+        {
+          "Name": "Passport numbers",
+          "ParentPolicyName": "Passport numbers in email",
+          "Policy": "27e477c0-3b40-8d75-ed72-17762b35b196",
+          "Priority": 0,
+          "Mode": "Enable",
+          "Disabled": false,
+          "Workload": "Exchange",
+          "ContentContainsSensitiveInformation": [
+            {
+              "name": "U.S. / U.K. Passport Number",
+              "mincount": "1",
+              "minconfidence": "75"
+            },
+            {
+              "name": "Italy Passport Number",
+              "mincount": "1",
+              "minconfidence": "75"
+            }
+          ],
+          "Guid": "1f7e7237-906f-408b-99c9-07ccde8e79e1",
+          "Identity": "1f7e7237-906f-408b-99c9-07ccde8e79e1",
+          "ImmutableId": "1f7e7237-906f-408b-99c9-07ccde8e79e1",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        }
+      ]
+    },
+    "DataClassification.SensitiveInfoTypes": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 4.6,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Credit Card Number",
+          "Id": "ca7b4838-9efa-7ff9-7e83-4575de0a333c",
+          "Publisher": "Microsoft Corporation",
+          "Type": "Entity",
+          "RecommendedConfidence": 85,
+          "Description": "Detects valid credit card numbers from major brands, validated with the Luhn check.",
+          "Locale": "en-US",
+          "RulePackId": "915f35d3-39b9-fa4c-51a9-97b247bd746e",
+          "State": "Published"
+        },
+        {
+          "Name": "U.S. Social Security Number (SSN)",
+          "Id": "0a7f8f77-e71a-cfcb-ff8e-e46e2249767a",
+          "Publisher": "Microsoft Corporation",
+          "Type": "Entity",
+          "RecommendedConfidence": 85,
+          "Description": "Detects nine-digit U.S. Social Security Numbers in formatted and unformatted patterns.",
+          "Locale": "en-US",
+          "RulePackId": "915f35d3-39b9-fa4c-51a9-97b247bd746e",
+          "State": "Published"
+        },
+        {
+          "Name": "U.S. Bank Account Number",
+          "Id": "2160b272-e496-1239-74fc-1319d2874ed0",
+          "Publisher": "Microsoft Corporation",
+          "Type": "Entity",
+          "RecommendedConfidence": 75,
+          "Description": "Detects 6-17 digit U.S. bank account numbers near related keywords.",
+          "Locale": "en-US",
+          "RulePackId": "915f35d3-39b9-fa4c-51a9-97b247bd746e",
+          "State": "Published"
+        },
+        {
+          "Name": "International Banking Account Number (IBAN)",
+          "Id": "6b06bbc5-8f3e-936d-127e-0791de65bce5",
+          "Publisher": "Microsoft Corporation",
+          "Type": "Entity",
+          "RecommendedConfidence": 85,
+          "Description": "Detects IBANs with a valid country code and check digits.",
+          "Locale": "en-US",
+          "RulePackId": "915f35d3-39b9-fa4c-51a9-97b247bd746e",
+          "State": "Published"
+        },
+        {
+          "Name": "EU Debit Card Number",
+          "Id": "b7ff5a1b-d068-79c4-b5ef-0c886387b91e",
+          "Publisher": "Microsoft Corporation",
+          "Type": "Entity",
+          "RecommendedConfidence": 85,
+          "Description": "Detects 16-digit EU debit card numbers.",
+          "Locale": "en-US",
+          "RulePackId": "915f35d3-39b9-fa4c-51a9-97b247bd746e",
+          "State": "Published"
+        },
+        {
+          "Name": "U.S. / U.K. Passport Number",
+          "Id": "1fe0aa2f-25df-a6ff-d71f-62bf804bbeeb",
+          "Publisher": "Microsoft Corporation",
+          "Type": "Entity",
+          "RecommendedConfidence": 75,
+          "Description": "Detects nine-digit passport numbers near passport keywords.",
+          "Locale": "en-US",
+          "RulePackId": "915f35d3-39b9-fa4c-51a9-97b247bd746e",
+          "State": "Published"
+        },
+        {
+          "Name": "Italy Fiscal Code",
+          "Id": "90c24097-39ea-76fb-77a6-c3aec02152e9",
+          "Publisher": "Microsoft Corporation",
+          "Type": "Entity",
+          "RecommendedConfidence": 85,
+          "Description": "Detects the 16-character Italian codice fiscale with a valid checksum.",
+          "Locale": "en-US",
+          "RulePackId": "915f35d3-39b9-fa4c-51a9-97b247bd746e",
+          "State": "Published"
+        },
+        {
+          "Name": "Italy Passport Number",
+          "Id": "a9beaac7-e423-c9d5-00d3-738a5015089e",
+          "Publisher": "Microsoft Corporation",
+          "Type": "Entity",
+          "RecommendedConfidence": 75,
+          "Description": "Detects Italian passport numbers near passport keywords.",
+          "Locale": "en-US",
+          "RulePackId": "915f35d3-39b9-fa4c-51a9-97b247bd746e",
+          "State": "Published"
+        },
+        {
+          "Name": "Germany Identity Card Number",
+          "Id": "2d93eb25-a79c-175d-2c49-618d9b4a34cb",
+          "Publisher": "Microsoft Corporation",
+          "Type": "Entity",
+          "RecommendedConfidence": 85,
+          "Description": "Detects German Personalausweis numbers.",
+          "Locale": "en-US",
+          "RulePackId": "915f35d3-39b9-fa4c-51a9-97b247bd746e",
+          "State": "Published"
+        },
+        {
+          "Name": "Azure Storage Account Key",
+          "Id": "de23e799-aab0-02cb-2e77-75f2da502a5c",
+          "Publisher": "Microsoft Corporation",
+          "Type": "Entity",
+          "RecommendedConfidence": 85,
+          "Description": "Detects Azure Storage account keys and connection strings.",
+          "Locale": "en-US",
+          "RulePackId": "915f35d3-39b9-fa4c-51a9-97b247bd746e",
+          "State": "Published"
+        },
+        {
+          "Name": "Contoso Employee ID",
+          "Id": "dff59156-fa16-3b2f-2395-b9441333c482",
+          "Publisher": "Contoso",
+          "Type": "Entity",
+          "RecommendedConfidence": 85,
+          "Description": "Contoso employee numbers: CTS- followed by six digits.",
+          "Locale": "en-US",
+          "RulePackId": "05110e3f-27de-4d97-16fa-930e8efc2ddc",
+          "State": "Published"
+        },
+        {
+          "Name": "Contoso Project Codename",
+          "Id": "fbb88c8c-d293-ce5b-20c8-ae338723985c",
+          "Publisher": "Contoso",
+          "Type": "Entity",
+          "RecommendedConfidence": 75,
+          "Description": "Matches entries of the Contoso Project Codenames keyword dictionary.",
+          "Locale": "en-US",
+          "RulePackId": "05110e3f-27de-4d97-16fa-930e8efc2ddc",
+          "State": "Published"
+        }
+      ]
+    },
+    "DataClassification.RulePackages": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 2.2,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "RuleCollectionName": "Microsoft Rule Package",
+          "LocalizedName": "Microsoft Rule Package",
+          "Publisher": "Microsoft Corporation",
+          "Version": "15.20.8001.0",
+          "Identity": "915f35d3-39b9-fa4c-51a9-97b247bd746e",
+          "WhenChangedUTC": "2026-08-22T09:00:00Z"
+        },
+        {
+          "RuleCollectionName": "Contoso Custom Sensitive Information Types",
+          "LocalizedName": "Contoso Custom SITs",
+          "Publisher": "Contoso",
+          "Version": "1.0.3.0",
+          "Identity": "05110e3f-27de-4d97-16fa-930e8efc2ddc",
+          "WhenChangedUTC": "2026-07-18T09:00:00Z",
+          "SerializedClassificationRuleCollection": "<RulePackage xmlns=\"http://schemas.microsoft.com/office/2011/mce\"><RulePack id=\"05110e3f-27de-4d97-16fa-930e8efc2ddc\"><Version major=\"1\" minor=\"0\" build=\"3\" revision=\"0\"/><Publisher id=\"00d8f539-0fb5-e5d1-7220-1a8e0262e90b\"/></RulePack><Rules><Entity id=\"dff59156-fa16-3b2f-2395-b9441333c482\" patternsProximity=\"300\" recommendedConfidence=\"85\"><Pattern confidenceLevel=\"85\"><IdMatch idRef=\"Regex_contoso_employee_id\"/></Pattern></Entity><Regex id=\"Regex_contoso_employee_id\">CTS-\\d{6}</Regex></Rules></RulePackage>"
+        }
+      ]
+    },
+    "DataClassification.KeywordDictionaries": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 0.9,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Contoso Project Codenames",
+          "Description": "Internal project codenames that must not leave the company.",
+          "Identity": "dd973a7b-421a-ec3f-e82d-e26b541efb89",
+          "KeywordDictionary": "Falcon, Kestrel, Osprey, Harrier, Merlin, Peregrine",
+          "WhenChangedUTC": "2026-07-03T09:00:00Z"
+        }
+      ]
+    },
+    "DataClassification.EdmSchemas": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 0.8,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Contoso patient records",
+          "DataStoreName": "patientrecords",
+          "Identity": "678801b3-5034-33aa-78c8-e154cd92b186",
+          "Version": "1",
+          "WhenChangedUTC": "2026-06-03T09:00:00Z",
+          "EdmSchemaXml": "<EdmSchema xmlns=\"http://schemas.microsoft.com/office/2018/edm\"><DataStore name=\"patientrecords\" description=\"Patient records\" version=\"1\"><Field name=\"PatientID\" searchable=\"true\" caseInsensitive=\"true\"/><Field name=\"MRN\" searchable=\"true\"/><Field name=\"FirstName\"/><Field name=\"LastName\"/><Field name=\"DOB\"/></DataStore></EdmSchema>"
+        }
+      ]
+    },
+    "DataLossPrevention.Policies": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 1.6,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "U.S. Financial Data",
+          "Priority": 0,
+          "Mode": "Enable",
+          "Enabled": true,
+          "Type": "Dlp",
+          "Workload": "Exchange, SharePoint, OneDriveForBusiness, Teams",
+          "ExchangeLocation": [
+            "All"
+          ],
+          "SharePointLocation": [
+            "All"
+          ],
+          "OneDriveLocation": [
+            "All"
+          ],
+          "TeamsLocation": [
+            "All"
+          ],
+          "DistributionStatus": "Success",
+          "Comment": "Based on the U.S. Financial Data template.",
+          "Guid": "3055dce7-31df-333a-f224-feefc5505bf5",
+          "Identity": "3055dce7-31df-333a-f224-feefc5505bf5",
+          "ImmutableId": "3055dce7-31df-333a-f224-feefc5505bf5",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        },
+        {
+          "Name": "GDPR Enhanced",
+          "Priority": 1,
+          "Mode": "TestWithNotifications",
+          "Enabled": true,
+          "Type": "Dlp",
+          "Workload": "Exchange, SharePoint, OneDriveForBusiness",
+          "ExchangeLocation": [
+            "All"
+          ],
+          "SharePointLocation": [
+            "All"
+          ],
+          "OneDriveLocation": [
+            "All"
+          ],
+          "DistributionStatus": "Success",
+          "Comment": "In simulation since 2026-09; review before enabling.",
+          "Guid": "752ec8d6-13fd-9564-1569-59fc9af9f30b",
+          "Identity": "752ec8d6-13fd-9564-1569-59fc9af9f30b",
+          "ImmutableId": "752ec8d6-13fd-9564-1569-59fc9af9f30b",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        },
+        {
+          "Name": "Endpoint - Highly Confidential to USB",
+          "Priority": 2,
+          "Mode": "Enable",
+          "Enabled": true,
+          "Type": "Dlp",
+          "Workload": "EndpointDevices",
+          "EndpointDlpLocation": [
+            "All"
+          ],
+          "DistributionStatus": "Success",
+          "Guid": "325d2ba4-956d-92a6-a407-9c36624fe6d3",
+          "Identity": "325d2ba4-956d-92a6-a407-9c36624fe6d3",
+          "ImmutableId": "325d2ba4-956d-92a6-a407-9c36624fe6d3",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        }
+      ]
+    },
+    "DataLossPrevention.Rules": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 2.1,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Low volume of U.S. financial data",
+          "ParentPolicyName": "U.S. Financial Data",
+          "Policy": "3055dce7-31df-333a-f224-feefc5505bf5",
+          "Priority": 0,
+          "Mode": "Enable",
+          "Disabled": false,
+          "ReportSeverityLevel": "Low",
+          "BlockAccess": false,
+          "NotifyUser": [
+            "Owner",
+            "LastModifier"
+          ],
+          "GenerateAlert": [],
+          "ContentContainsSensitiveInformation": [
+            {
+              "name": "Credit Card Number",
+              "mincount": "1",
+              "maxcount": "9",
+              "minconfidence": "85"
+            },
+            {
+              "name": "U.S. Bank Account Number",
+              "mincount": "1",
+              "maxcount": "9",
+              "minconfidence": "75"
+            }
+          ],
+          "Guid": "a4e212c6-0a8b-42d9-953d-2bf7ee9977d2",
+          "Identity": "a4e212c6-0a8b-42d9-953d-2bf7ee9977d2",
+          "ImmutableId": "a4e212c6-0a8b-42d9-953d-2bf7ee9977d2",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        },
+        {
+          "Name": "High volume of U.S. financial data",
+          "ParentPolicyName": "U.S. Financial Data",
+          "Policy": "3055dce7-31df-333a-f224-feefc5505bf5",
+          "Priority": 1,
+          "Mode": "Enable",
+          "Disabled": false,
+          "ReportSeverityLevel": "High",
+          "BlockAccess": true,
+          "BlockAccessScope": "PerUser",
+          "NotifyUser": [
+            "Owner",
+            "SiteAdmin"
+          ],
+          "GenerateAlert": [
+            "dlp-alerts@contoso.com"
+          ],
+          "GenerateIncidentReport": [
+            "dlp-alerts@contoso.com"
+          ],
+          "NotifyAllowOverride": [
+            "WithJustification"
+          ],
+          "ContentContainsSensitiveInformation": [
+            {
+              "name": "Credit Card Number",
+              "mincount": "10",
+              "maxcount": "-1",
+              "minconfidence": "85"
+            },
+            {
+              "name": "U.S. Bank Account Number",
+              "mincount": "10",
+              "maxcount": "-1",
+              "minconfidence": "75"
+            }
+          ],
+          "Guid": "7cf6f601-b182-9728-8415-ad820302255c",
+          "Identity": "7cf6f601-b182-9728-8415-ad820302255c",
+          "ImmutableId": "7cf6f601-b182-9728-8415-ad820302255c",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        },
+        {
+          "Name": "EU personal data shared externally",
+          "ParentPolicyName": "GDPR Enhanced",
+          "Policy": "752ec8d6-13fd-9564-1569-59fc9af9f30b",
+          "Priority": 2,
+          "Mode": "TestWithNotifications",
+          "Disabled": false,
+          "ReportSeverityLevel": "Medium",
+          "BlockAccess": false,
+          "AccessScope": "NotInOrganization",
+          "NotifyUser": [
+            "Owner"
+          ],
+          "ContentContainsSensitiveInformation": [
+            {
+              "name": "Italy Fiscal Code",
+              "mincount": "1",
+              "minconfidence": "85"
+            },
+            {
+              "name": "Germany Identity Card Number",
+              "mincount": "1",
+              "minconfidence": "85"
+            },
+            {
+              "name": "International Banking Account Number (IBAN)",
+              "mincount": "1",
+              "minconfidence": "85"
+            }
+          ],
+          "Guid": "2f516e60-cffa-18b5-56f1-56c4adc703d2",
+          "Identity": "2f516e60-cffa-18b5-56f1-56c4adc703d2",
+          "ImmutableId": "2f516e60-cffa-18b5-56f1-56c4adc703d2",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        },
+        {
+          "Name": "Block copy of Highly Confidential to removable media",
+          "ParentPolicyName": "Endpoint - Highly Confidential to USB",
+          "Policy": "325d2ba4-956d-92a6-a407-9c36624fe6d3",
+          "Priority": 3,
+          "Mode": "Enable",
+          "Disabled": false,
+          "ReportSeverityLevel": "High",
+          "GenerateAlert": [
+            "SiteAdmin"
+          ],
+          "AdvancedRule": "{\"Version\":\"1.0\",\"Condition\":{\"Operator\":\"And\",\"SubConditions\":[{\"ConditionName\":\"ContentContainsSensitiveInformation\",\"Value\":[{\"groups\":[{\"Operator\":\"Or\",\"labels\":[{\"name\":\"ffcb95f6-78fa-5ba7-99c9-094313f9f516\",\"type\":\"Sensitivity\"},{\"name\":\"59044689-3c25-e8c0-51f9-7b88db741bdc\",\"type\":\"Sensitivity\"}],\"name\":\"Default\"}],\"Operator\":\"And\"}]}]}}",
+          "EndpointDlpRestrictions": [
+            {
+              "Setting": "RemovableMedia",
+              "Value": "Block"
+            },
+            {
+              "Setting": "CloudEgress",
+              "Value": "Audit"
+            },
+            {
+              "Setting": "Print",
+              "Value": "Warn"
+            }
+          ],
+          "Guid": "b09bf427-84c1-dece-c1d0-bce9982db369",
+          "Identity": "b09bf427-84c1-dece-c1d0-bce9982db369",
+          "ImmutableId": "b09bf427-84c1-dece-c1d0-bce9982db369",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        }
+      ]
+    },
+    "DataLossPrevention.PolicyTips": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 0.7,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "en-US\\NotifyUser",
+          "Action": "NotifyUser",
+          "Locale": "en-US",
+          "Value": "This item contains financial data. Check the recipients before you send it.",
+          "Identity": "c0b58c87-974f-5c60-66fc-63cb23eb2227"
+        },
+        {
+          "Name": "it-IT\\NotifyUser",
+          "Action": "NotifyUser",
+          "Locale": "it-IT",
+          "Value": "Questo elemento contiene dati finanziari. Verifica i destinatari prima di inviarlo.",
+          "Identity": "0479cd76-fd6f-d0de-e366-200000c94504"
+        }
+      ]
+    },
+    "DataLossPrevention.GlobalSettings": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 0.9,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Identity": "PolicyConfig",
+          "Name": "PolicyConfig",
+          "EnableLabelCoauth": true,
+          "EnableSpoAipMigration": true,
+          "EnableAdvancedRuleBuilder": true,
+          "EndpointDlpGlobalSettings": [
+            {
+              "Setting": "PathExclusion",
+              "Value": [
+                "C:\\Users\\*\\AppData\\Local\\Temp\\*"
+              ]
+            },
+            {
+              "Setting": "UnallowedApp",
+              "Value": [
+                {
+                  "Executable": "fakeuploader.exe",
+                  "Name": "Fake Uploader"
+                }
+              ]
+            },
+            {
+              "Setting": "CloudAppMode",
+              "Value": "Block"
+            },
+            {
+              "Setting": "CloudAppRestrictionList",
+              "Value": [
+                "dropbox.com",
+                "wetransfer.com"
+              ]
+            },
+            {
+              "Setting": "AdvancedClassificationEnabled",
+              "Value": "true"
+            }
+          ],
+          "WhenChangedUTC": "2026-09-19T09:00:00Z"
+        }
+      ]
+    },
+    "DataLifecycleManagement.RetentionPolicies": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 1.9,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Org-wide mail and OneDrive - 7 years",
+          "Enabled": true,
+          "Mode": "Enforce",
+          "Type": "Retention",
+          "RetentionRuleTypes": [
+            "Default"
+          ],
+          "Workload": "Exchange, OneDriveForBusiness",
+          "ExchangeLocation": [
+            "All"
+          ],
+          "OneDriveLocation": [
+            "All"
+          ],
+          "DistributionStatus": "Success",
+          "Guid": "394b9bd5-b45a-56ff-716a-9fff6c78fae8",
+          "Identity": "394b9bd5-b45a-56ff-716a-9fff6c78fae8",
+          "ImmutableId": "394b9bd5-b45a-56ff-716a-9fff6c78fae8",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        },
+        {
+          "Name": "Teams chats - delete after 1 year",
+          "Enabled": true,
+          "Mode": "Enforce",
+          "Type": "Retention",
+          "RetentionRuleTypes": [
+            "Default"
+          ],
+          "Workload": "Skype",
+          "TeamsChatLocation": [
+            "All"
+          ],
+          "TeamsChannelLocation": [
+            "All"
+          ],
+          "DistributionStatus": "Success",
+          "Guid": "d796870f-624b-0e79-6453-ebb3873224c7",
+          "Identity": "d796870f-624b-0e79-6453-ebb3873224c7",
+          "ImmutableId": "d796870f-624b-0e79-6453-ebb3873224c7",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        },
+        {
+          "Name": "Publish records labels",
+          "Enabled": true,
+          "Mode": "Enforce",
+          "Type": "Retention",
+          "RetentionRuleTypes": [
+            "Publish"
+          ],
+          "Workload": "Exchange, SharePoint, OneDriveForBusiness, ModernGroup",
+          "ExchangeLocation": [
+            "All"
+          ],
+          "SharePointLocation": [
+            "All"
+          ],
+          "OneDriveLocation": [
+            "All"
+          ],
+          "ModernGroupLocation": [
+            "All"
+          ],
+          "DistributionStatus": "Success",
+          "Guid": "9e193c49-5c61-bd24-0793-f82f02e25dce",
+          "Identity": "9e193c49-5c61-bd24-0793-f82f02e25dce",
+          "ImmutableId": "9e193c49-5c61-bd24-0793-f82f02e25dce",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        },
+        {
+          "Name": "Auto-apply: contracts in Finance sites",
+          "Enabled": true,
+          "Mode": "Enforce",
+          "Type": "Retention",
+          "RetentionRuleTypes": [
+            "ApplyTag"
+          ],
+          "Workload": "SharePoint",
+          "AdaptiveScopeLocation": [
+            "Finance SharePoint sites"
+          ],
+          "DistributionStatus": "Pending",
+          "Guid": "9179e184-6cb3-06cf-c95f-f4c46c679868",
+          "Identity": "9179e184-6cb3-06cf-c95f-f4c46c679868",
+          "ImmutableId": "9179e184-6cb3-06cf-c95f-f4c46c679868",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        }
+      ]
+    },
+    "DataLifecycleManagement.RetentionRules": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 1.5,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Org-wide mail and OneDrive - 7 years rule",
+          "Policy": "394b9bd5-b45a-56ff-716a-9fff6c78fae8",
+          "RetentionDuration": 2555,
+          "RetentionDurationDisplayHint": "Days",
+          "RetentionComplianceAction": "KeepAndDelete",
+          "ExpirationDateOption": "CreationAgeInDays",
+          "Mode": "Enforce",
+          "Disabled": false,
+          "Guid": "4cebbd8f-2fd2-169d-15e7-25b3bf687663",
+          "Identity": "4cebbd8f-2fd2-169d-15e7-25b3bf687663",
+          "ImmutableId": "4cebbd8f-2fd2-169d-15e7-25b3bf687663",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        },
+        {
+          "Name": "Teams chats - delete after 1 year rule",
+          "Policy": "d796870f-624b-0e79-6453-ebb3873224c7",
+          "RetentionDuration": 365,
+          "RetentionDurationDisplayHint": "Days",
+          "RetentionComplianceAction": "Delete",
+          "ExpirationDateOption": "CreationAgeInDays",
+          "Mode": "Enforce",
+          "Disabled": false,
+          "Guid": "32bdaa05-9202-d9aa-526c-3527488c3970",
+          "Identity": "32bdaa05-9202-d9aa-526c-3527488c3970",
+          "ImmutableId": "32bdaa05-9202-d9aa-526c-3527488c3970",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        },
+        {
+          "Name": "Publish records labels rule",
+          "Policy": "9e193c49-5c61-bd24-0793-f82f02e25dce",
+          "PublishComplianceTag": [
+            "Contract - 7 years",
+            "HR record - 10 years after departure",
+            "Tax record - 10 years",
+            "Legal hold - keep forever"
+          ],
+          "Mode": "Enforce",
+          "Disabled": false,
+          "Guid": "9848cc3b-602b-9a7b-e69e-5cd4a5b1d619",
+          "Identity": "9848cc3b-602b-9a7b-e69e-5cd4a5b1d619",
+          "ImmutableId": "9848cc3b-602b-9a7b-e69e-5cd4a5b1d619",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        },
+        {
+          "Name": "Auto-apply: contracts in Finance sites rule",
+          "Policy": "9179e184-6cb3-06cf-c95f-f4c46c679868",
+          "ApplyComplianceTag": "Contract - 7 years",
+          "ContentMatchQuery": "contract OR \"statement of work\" OR \"master services agreement\"",
+          "Mode": "Enforce",
+          "Disabled": false,
+          "Guid": "eed60a61-d435-a4f4-26a6-f6cf3b72544c",
+          "Identity": "eed60a61-d435-a4f4-26a6-f6cf3b72544c",
+          "ImmutableId": "eed60a61-d435-a4f4-26a6-f6cf3b72544c",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        }
+      ]
+    },
+    "DataLifecycleManagement.AppRetentionPolicies": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 1.0,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Copilot interactions - 2 years",
+          "Applications": [
+            "User:M365Copilot"
+          ],
+          "Enabled": true,
+          "Mode": "Enforce",
+          "DistributionStatus": "Success",
+          "Guid": "39f8cf0f-6ee1-5cc5-8b7e-9f3fa6d75b1e",
+          "Identity": "39f8cf0f-6ee1-5cc5-8b7e-9f3fa6d75b1e",
+          "ImmutableId": "39f8cf0f-6ee1-5cc5-8b7e-9f3fa6d75b1e",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        },
+        {
+          "Name": "Viva Engage - 3 years",
+          "Applications": [
+            "User:VivaEngage",
+            "Group:VivaEngage"
+          ],
+          "Enabled": true,
+          "Mode": "Enforce",
+          "DistributionStatus": "Success",
+          "Guid": "2999d03a-b0f8-b781-e980-0a55f965f728",
+          "Identity": "2999d03a-b0f8-b781-e980-0a55f965f728",
+          "ImmutableId": "2999d03a-b0f8-b781-e980-0a55f965f728",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        }
+      ]
+    },
+    "DataLifecycleManagement.AppRetentionRules": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 0.9,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Copilot interactions - 2 years rule",
+          "Policy": "39f8cf0f-6ee1-5cc5-8b7e-9f3fa6d75b1e",
+          "RetentionDuration": 730,
+          "RetentionComplianceAction": "KeepAndDelete",
+          "ExpirationDateOption": "CreationAgeInDays",
+          "Mode": "Enforce",
+          "Disabled": false,
+          "Guid": "157b2ed0-eda1-7e7b-82af-a052132ee823",
+          "Identity": "157b2ed0-eda1-7e7b-82af-a052132ee823",
+          "ImmutableId": "157b2ed0-eda1-7e7b-82af-a052132ee823",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        },
+        {
+          "Name": "Viva Engage - 3 years rule",
+          "Policy": "2999d03a-b0f8-b781-e980-0a55f965f728",
+          "RetentionDuration": 1095,
+          "RetentionComplianceAction": "Keep",
+          "ExpirationDateOption": "CreationAgeInDays",
+          "Mode": "Enforce",
+          "Disabled": false,
+          "Guid": "bc2d3198-5c5b-b33c-9f43-5f242c421670",
+          "Identity": "bc2d3198-5c5b-b33c-9f43-5f242c421670",
+          "ImmutableId": "bc2d3198-5c5b-b33c-9f43-5f242c421670",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        }
+      ]
+    },
+    "DataLifecycleManagement.AdaptiveScopes": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 0.8,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Executives",
+          "LocationType": "User",
+          "FilterConditions": "{\"Conditions\":[{\"Value\":\"Executive Leadership\",\"Operator\":\"Equals\",\"Name\":\"Department\"}],\"Conjunction\":\"And\"}",
+          "RawQuery": "",
+          "AdministrativeUnits": [],
+          "Guid": "1fc0c125-8ab7-5f66-16be-be8d4289ffb6",
+          "Identity": "1fc0c125-8ab7-5f66-16be-be8d4289ffb6",
+          "ImmutableId": "1fc0c125-8ab7-5f66-16be-be8d4289ffb6",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        },
+        {
+          "Name": "Finance SharePoint sites",
+          "LocationType": "Site",
+          "FilterConditions": "",
+          "RawQuery": "RefinableString00=Finance",
+          "AdministrativeUnits": [],
+          "Guid": "61afbe69-b01a-43b4-d2be-fde6e9164bad",
+          "Identity": "61afbe69-b01a-43b4-d2be-fde6e9164bad",
+          "ImmutableId": "61afbe69-b01a-43b4-d2be-fde6e9164bad",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        }
+      ]
+    },
+    "RecordsManagement.RetentionLabels": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 1.2,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Contract - 7 years",
+          "Priority": 0,
+          "RetentionAction": "KeepAndDelete",
+          "RetentionDuration": "2555",
+          "RetentionType": "CreationAgeInDays",
+          "IsRecordLabel": false,
+          "Regulatory": false,
+          "EventType": null,
+          "Workload": "Exchange, SharePoint, OneDriveForBusiness, ModernGroup",
+          "ReviewerEmail": [],
+          "Comment": "",
+          "Guid": "1fde530b-31e8-fdd4-e461-f6263224cbc3",
+          "Identity": "1fde530b-31e8-fdd4-e461-f6263224cbc3",
+          "ImmutableId": "1fde530b-31e8-fdd4-e461-f6263224cbc3",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z",
+          "FilePlanMetadata": "{\"Settings\":[{\"Key\":\"FilePlanPropertyDepartment\",\"Value\":\"Finance\"},{\"Key\":\"FilePlanPropertyCategory\",\"Value\":\"Contracts\"},{\"Key\":\"FilePlanPropertyAuthority\",\"Value\":\"Business\"}]}"
+        },
+        {
+          "Name": "HR record - 10 years after departure",
+          "Priority": 1,
+          "RetentionAction": "KeepAndDelete",
+          "RetentionDuration": "3650",
+          "RetentionType": "EventAgeInDays",
+          "IsRecordLabel": true,
+          "Regulatory": false,
+          "EventType": "Employee departure",
+          "Workload": "Exchange, SharePoint, OneDriveForBusiness, ModernGroup",
+          "ReviewerEmail": [],
+          "Comment": "",
+          "Guid": "ab0e1140-c75c-d5fc-8f93-8db6da6b3e7a",
+          "Identity": "ab0e1140-c75c-d5fc-8f93-8db6da6b3e7a",
+          "ImmutableId": "ab0e1140-c75c-d5fc-8f93-8db6da6b3e7a",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z",
+          "FilePlanMetadata": "{\"Settings\":[{\"Key\":\"FilePlanPropertyDepartment\",\"Value\":\"Human Resources\"},{\"Key\":\"FilePlanPropertyCategory\",\"Value\":\"Payroll\"}]}"
+        },
+        {
+          "Name": "Tax record - 10 years",
+          "Priority": 2,
+          "RetentionAction": "KeepAndDelete",
+          "RetentionDuration": "3650",
+          "RetentionType": "CreationAgeInDays",
+          "IsRecordLabel": true,
+          "Regulatory": false,
+          "EventType": null,
+          "Workload": "Exchange, SharePoint, OneDriveForBusiness, ModernGroup",
+          "ReviewerEmail": [],
+          "Comment": "",
+          "Guid": "ef186706-927a-1b91-7ad5-386b408d8ddc",
+          "Identity": "ef186706-927a-1b91-7ad5-386b408d8ddc",
+          "ImmutableId": "ef186706-927a-1b91-7ad5-386b408d8ddc",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z",
+          "FilePlanMetadata": "{\"Settings\":[{\"Key\":\"FilePlanPropertyDepartment\",\"Value\":\"Finance\"},{\"Key\":\"FilePlanPropertyCategory\",\"Value\":\"Tax\"},{\"Key\":\"FilePlanPropertyCitation\",\"Value\":\"Sarbanes-Oxley Act of 2002\"}]}"
+        },
+        {
+          "Name": "Legal hold - keep forever",
+          "Priority": 3,
+          "RetentionAction": "Keep",
+          "RetentionDuration": "Unlimited",
+          "RetentionType": "TaggedAgeInDays",
+          "IsRecordLabel": true,
+          "Regulatory": true,
+          "EventType": null,
+          "Workload": "Exchange, SharePoint, OneDriveForBusiness, ModernGroup",
+          "ReviewerEmail": [
+            "legal@contoso.com"
+          ],
+          "Comment": "",
+          "Guid": "7481b710-3957-38ef-610c-962fda352070",
+          "Identity": "7481b710-3957-38ef-610c-962fda352070",
+          "ImmutableId": "7481b710-3957-38ef-610c-962fda352070",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        },
+        {
+          "Name": "Delete after 1 year",
+          "Priority": 4,
+          "RetentionAction": "Delete",
+          "RetentionDuration": "365",
+          "RetentionType": "ModificationAgeInDays",
+          "IsRecordLabel": false,
+          "Regulatory": false,
+          "EventType": null,
+          "Workload": "Exchange, SharePoint, OneDriveForBusiness, ModernGroup",
+          "ReviewerEmail": [],
+          "Comment": "",
+          "Guid": "b54bf9ec-de0b-a3d4-5a38-73d9180539cd",
+          "Identity": "b54bf9ec-de0b-a3d4-5a38-73d9180539cd",
+          "ImmutableId": "b54bf9ec-de0b-a3d4-5a38-73d9180539cd",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        }
+      ]
+    },
+    "RecordsManagement.EventTypes": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 0.6,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Employee departure",
+          "Comment": "Triggered by HR when an employee leaves Contoso.",
+          "Guid": "b60fe499-7234-aa3a-1b8e-9e0e3ccacd02",
+          "Identity": "b60fe499-7234-aa3a-1b8e-9e0e3ccacd02",
+          "ImmutableId": "b60fe499-7234-aa3a-1b8e-9e0e3ccacd02",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        },
+        {
+          "Name": "Contract expiration",
+          "Comment": "Triggered when a customer or vendor contract ends.",
+          "Guid": "f337dee9-85f3-fc84-d508-217fb71a6afe",
+          "Identity": "f337dee9-85f3-fc84-d508-217fb71a6afe",
+          "ImmutableId": "f337dee9-85f3-fc84-d508-217fb71a6afe",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        }
+      ]
+    },
+    "RecordsManagement.Events": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 0.7,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Departure - employee CTS-104233",
+          "EventType": "Employee departure",
+          "EventDateTime": "2026-09-10T09:00:00Z",
+          "EventStatus": "Completed",
+          "SharePointAssetIdQuery": "EmployeeNumber:CTS-104233",
+          "ExchangeAssetIdQuery": "CTS-104233",
+          "Guid": "a819d7fb-00aa-e129-3dcf-63ff1023f848",
+          "Identity": "a819d7fb-00aa-e129-3dcf-63ff1023f848",
+          "ImmutableId": "a819d7fb-00aa-e129-3dcf-63ff1023f848",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-09-09T09:00:00Z",
+          "WhenChangedUTC": "2026-09-10T09:00:00Z"
+        }
+      ]
+    },
+    "RecordsManagement.Departments": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 0.5,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Finance",
+          "DisplayName": "Finance",
+          "Guid": "ca894161-4533-d19e-2a89-3c78d44d6312",
+          "Identity": "ca894161-4533-d19e-2a89-3c78d44d6312",
+          "ImmutableId": "ca894161-4533-d19e-2a89-3c78d44d6312",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2025-12-05T09:00:00Z",
+          "WhenChangedUTC": "2025-12-05T09:00:00Z"
+        },
+        {
+          "Name": "Human Resources",
+          "DisplayName": "Human Resources",
+          "Guid": "cfe6e2d3-0cd0-7f70-fe66-f8b4d5c7f64b",
+          "Identity": "cfe6e2d3-0cd0-7f70-fe66-f8b4d5c7f64b",
+          "ImmutableId": "cfe6e2d3-0cd0-7f70-fe66-f8b4d5c7f64b",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2025-12-05T09:00:00Z",
+          "WhenChangedUTC": "2025-12-05T09:00:00Z"
+        },
+        {
+          "Name": "Legal",
+          "DisplayName": "Legal",
+          "Guid": "106d0ecc-aa26-fa48-e81c-28ec60bd45ec",
+          "Identity": "106d0ecc-aa26-fa48-e81c-28ec60bd45ec",
+          "ImmutableId": "106d0ecc-aa26-fa48-e81c-28ec60bd45ec",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2025-12-05T09:00:00Z",
+          "WhenChangedUTC": "2025-12-05T09:00:00Z"
+        },
+        {
+          "Name": "Research",
+          "DisplayName": "Research",
+          "Guid": "9660f5f8-e611-fb7a-f17a-b24186fca264",
+          "Identity": "9660f5f8-e611-fb7a-f17a-b24186fca264",
+          "ImmutableId": "9660f5f8-e611-fb7a-f17a-b24186fca264",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2025-12-05T09:00:00Z",
+          "WhenChangedUTC": "2025-12-05T09:00:00Z"
+        }
+      ]
+    },
+    "RecordsManagement.Categories": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 0.5,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Contracts",
+          "DisplayName": "Contracts",
+          "Guid": "4174dd76-7149-abf7-7b85-3e5fd2ca380d",
+          "Identity": "4174dd76-7149-abf7-7b85-3e5fd2ca380d",
+          "ImmutableId": "4174dd76-7149-abf7-7b85-3e5fd2ca380d",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2025-12-05T09:00:00Z",
+          "WhenChangedUTC": "2025-12-05T09:00:00Z"
+        },
+        {
+          "Name": "Payroll",
+          "DisplayName": "Payroll",
+          "Guid": "03e3d18c-53f6-5e1c-7e4d-c2e267192a52",
+          "Identity": "03e3d18c-53f6-5e1c-7e4d-c2e267192a52",
+          "ImmutableId": "03e3d18c-53f6-5e1c-7e4d-c2e267192a52",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2025-12-05T09:00:00Z",
+          "WhenChangedUTC": "2025-12-05T09:00:00Z"
+        },
+        {
+          "Name": "Tax",
+          "DisplayName": "Tax",
+          "Guid": "b4e0f913-03bf-b90b-5756-44a30afe52a8",
+          "Identity": "b4e0f913-03bf-b90b-5756-44a30afe52a8",
+          "ImmutableId": "b4e0f913-03bf-b90b-5756-44a30afe52a8",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2025-12-05T09:00:00Z",
+          "WhenChangedUTC": "2025-12-05T09:00:00Z"
+        },
+        {
+          "Name": "Intellectual property",
+          "DisplayName": "Intellectual property",
+          "Guid": "1d68c11b-ae31-78b6-a17b-579313221955",
+          "Identity": "1d68c11b-ae31-78b6-a17b-579313221955",
+          "ImmutableId": "1d68c11b-ae31-78b6-a17b-579313221955",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2025-12-05T09:00:00Z",
+          "WhenChangedUTC": "2025-12-05T09:00:00Z"
+        }
+      ]
+    },
+    "RecordsManagement.SubCategories": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 0.5,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Vendor contracts",
+          "DisplayName": "Vendor contracts",
+          "ParentId": "4174dd76-7149-abf7-7b85-3e5fd2ca380d",
+          "Guid": "79a265ec-638e-2bb0-e639-f16ec6bf9db0",
+          "Identity": "79a265ec-638e-2bb0-e639-f16ec6bf9db0",
+          "ImmutableId": "79a265ec-638e-2bb0-e639-f16ec6bf9db0",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2025-12-05T09:00:00Z",
+          "WhenChangedUTC": "2025-12-05T09:00:00Z"
+        },
+        {
+          "Name": "Customer contracts",
+          "DisplayName": "Customer contracts",
+          "ParentId": "4174dd76-7149-abf7-7b85-3e5fd2ca380d",
+          "Guid": "6a8f5404-a81d-0c65-72fa-d461d0917090",
+          "Identity": "6a8f5404-a81d-0c65-72fa-d461d0917090",
+          "ImmutableId": "6a8f5404-a81d-0c65-72fa-d461d0917090",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2025-12-05T09:00:00Z",
+          "WhenChangedUTC": "2025-12-05T09:00:00Z"
+        }
+      ]
+    },
+    "RecordsManagement.Authorities": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 0.5,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Business",
+          "DisplayName": "Business",
+          "Guid": "90deddfb-caf8-4bf6-5e16-9c128c39f51f",
+          "Identity": "90deddfb-caf8-4bf6-5e16-9c128c39f51f",
+          "ImmutableId": "90deddfb-caf8-4bf6-5e16-9c128c39f51f",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2025-12-05T09:00:00Z",
+          "WhenChangedUTC": "2025-12-05T09:00:00Z"
+        },
+        {
+          "Name": "Legal",
+          "DisplayName": "Legal",
+          "Guid": "13b1ddce-b15d-5785-4cde-a1dd9827a5f0",
+          "Identity": "13b1ddce-b15d-5785-4cde-a1dd9827a5f0",
+          "ImmutableId": "13b1ddce-b15d-5785-4cde-a1dd9827a5f0",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2025-12-05T09:00:00Z",
+          "WhenChangedUTC": "2025-12-05T09:00:00Z"
+        },
+        {
+          "Name": "Regulatory",
+          "DisplayName": "Regulatory",
+          "Guid": "789f5daf-fd0a-f7f8-a41b-41c521fb207f",
+          "Identity": "789f5daf-fd0a-f7f8-a41b-41c521fb207f",
+          "ImmutableId": "789f5daf-fd0a-f7f8-a41b-41c521fb207f",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2025-12-05T09:00:00Z",
+          "WhenChangedUTC": "2025-12-05T09:00:00Z"
+        }
+      ]
+    },
+    "RecordsManagement.Citations": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 0.5,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Sarbanes-Oxley Act of 2002",
+          "DisplayName": "Sarbanes-Oxley Act of 2002",
+          "CitationUrl": "https://www.congress.gov/bill/107th-congress/house-bill/3763",
+          "CitationJurisdiction": "U.S. Federal",
+          "Guid": "4c6adf50-a90c-ebcb-18cd-26598cc503ab",
+          "Identity": "4c6adf50-a90c-ebcb-18cd-26598cc503ab",
+          "ImmutableId": "4c6adf50-a90c-ebcb-18cd-26598cc503ab",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2025-12-05T09:00:00Z",
+          "WhenChangedUTC": "2025-12-05T09:00:00Z"
+        },
+        {
+          "Name": "GDPR Article 17",
+          "DisplayName": "GDPR Article 17",
+          "CitationUrl": "https://eur-lex.europa.eu/eli/reg/2016/679/oj",
+          "CitationJurisdiction": "European Union",
+          "Guid": "8a9a9379-1555-e76c-16f2-32a70f2f9a1d",
+          "Identity": "8a9a9379-1555-e76c-16f2-32a70f2f9a1d",
+          "ImmutableId": "8a9a9379-1555-e76c-16f2-32a70f2f9a1d",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2025-12-05T09:00:00Z",
+          "WhenChangedUTC": "2025-12-05T09:00:00Z"
+        }
+      ]
+    },
+    "RecordsManagement.ReferenceIds": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 0.5,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "FIN-001",
+          "DisplayName": "FIN-001",
+          "Guid": "dbaa9449-7f02-8579-0816-1c911bf2e786",
+          "Identity": "dbaa9449-7f02-8579-0816-1c911bf2e786",
+          "ImmutableId": "dbaa9449-7f02-8579-0816-1c911bf2e786",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2025-12-05T09:00:00Z",
+          "WhenChangedUTC": "2025-12-05T09:00:00Z"
+        },
+        {
+          "Name": "FIN-002",
+          "DisplayName": "FIN-002",
+          "Guid": "6f316a88-4fe1-1749-c98e-1e6c8b008287",
+          "Identity": "6f316a88-4fe1-1749-c98e-1e6c8b008287",
+          "ImmutableId": "6f316a88-4fe1-1749-c98e-1e6c8b008287",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2025-12-05T09:00:00Z",
+          "WhenChangedUTC": "2025-12-05T09:00:00Z"
+        },
+        {
+          "Name": "HR-001",
+          "DisplayName": "HR-001",
+          "Guid": "2119aab6-3289-bdf1-dbb7-2a0e2e659919",
+          "Identity": "2119aab6-3289-bdf1-dbb7-2a0e2e659919",
+          "ImmutableId": "2119aab6-3289-bdf1-dbb7-2a0e2e659919",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2025-12-05T09:00:00Z",
+          "WhenChangedUTC": "2025-12-05T09:00:00Z"
+        },
+        {
+          "Name": "LEG-001",
+          "DisplayName": "LEG-001",
+          "Guid": "d07b63bd-7c10-d3c5-a2b7-c17558d5e401",
+          "Identity": "d07b63bd-7c10-d3c5-a2b7-c17558d5e401",
+          "ImmutableId": "d07b63bd-7c10-d3c5-a2b7-c17558d5e401",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2025-12-05T09:00:00Z",
+          "WhenChangedUTC": "2025-12-05T09:00:00Z"
+        }
+      ]
+    },
+    "eDiscovery.Cases": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 1.1,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Contoso v. Fabrikam",
+          "Identity": "65808da1-561d-9d4d-856d-fc21b36e9071",
+          "CaseType": "eDiscovery",
+          "Status": "Active",
+          "Description": "Contract dispute with Fabrikam, Inc.",
+          "CreatedDateTime": "2026-04-24T09:00:00Z",
+          "ClosedDateTime": null,
+          "ClosedBy": null,
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedDateTime": "2026-05-24T09:00:00Z"
+        },
+        {
+          "Name": "Internal review 2026-07",
+          "Identity": "00631a77-b45d-fcab-a369-55e88d5e5400",
+          "CaseType": "eDiscovery",
+          "Status": "Closed",
+          "Description": "Expense policy review.",
+          "CreatedDateTime": "2026-06-28T09:00:00Z",
+          "ClosedDateTime": "2026-08-22T09:00:00Z",
+          "ClosedBy": "Alex Wilber",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedDateTime": "2026-07-28T09:00:00Z"
+        }
+      ]
+    },
+    "eDiscovery.PremiumCases": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 1.3,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Project Falcon leak investigation",
+          "Identity": "14bc2679-673c-7661-a3f9-0cc7406f56f9",
+          "CaseType": "AdvancedEdiscovery",
+          "Status": "Active",
+          "Description": "Investigation of a suspected disclosure of Project Falcon documents.",
+          "CreatedDateTime": "2026-08-12T09:00:00Z",
+          "ClosedDateTime": null,
+          "ClosedBy": null,
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedDateTime": "2026-09-11T09:00:00Z"
+        }
+      ]
+    },
+    "eDiscovery.CaseHolds": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 3.4,
+      "message": "Internal review 2026-07: The case 'Internal review 2026-07' is closed. Holds of closed cases are released.",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Fabrikam custodians",
+          "Case": "Contoso v. Fabrikam",
+          "CaseId": "65808da1-561d-9d4d-856d-fc21b36e9071",
+          "Enabled": true,
+          "Mode": "Enforce",
+          "DistributionStatus": "Success",
+          "ExchangeLocation": [
+            "meganb@contoso.com",
+            "alexw@contoso.com",
+            "sales-emea@contoso.com"
+          ],
+          "SharePointLocation": [
+            "https://contoso.sharepoint.com/sites/FabrikamAccount"
+          ],
+          "Guid": "2ca73748-a655-e4a7-92b9-80e3b6b1b85f",
+          "Identity": "2ca73748-a655-e4a7-92b9-80e3b6b1b85f",
+          "ImmutableId": "2ca73748-a655-e4a7-92b9-80e3b6b1b85f",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-05-04T09:00:00Z",
+          "WhenChangedUTC": "2026-08-02T09:00:00Z"
+        },
+        {
+          "Name": "Falcon team hold",
+          "Case": "Project Falcon leak investigation",
+          "CaseId": "14bc2679-673c-7661-a3f9-0cc7406f56f9",
+          "Enabled": true,
+          "Mode": "Enforce",
+          "DistributionStatus": "Success",
+          "ExchangeLocation": [
+            "falcon-team@contoso.com"
+          ],
+          "SharePointLocation": [
+            "https://contoso.sharepoint.com/sites/ProjectFalcon"
+          ],
+          "Guid": "de392037-a55a-4110-d46f-f0139a68913f",
+          "Identity": "de392037-a55a-4110-d46f-f0139a68913f",
+          "ImmutableId": "de392037-a55a-4110-d46f-f0139a68913f",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-08-13T09:00:00Z",
+          "WhenChangedUTC": "2026-08-13T09:00:00Z"
+        }
+      ]
+    },
+    "eDiscovery.Searches": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 2.5,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Fabrikam correspondence",
+          "Status": "Completed",
+          "ContentMatchQuery": "fabrikam AND (contract OR invoice) AND sent>=2025-01-01",
+          "ExchangeLocation": [
+            "All"
+          ],
+          "SharePointLocation": [],
+          "CreatedBy": "Megan Bowen",
+          "JobEndTime": "2026-09-01T09:00:00Z",
+          "Items": 1284,
+          "Size": 418273011,
+          "Identity": "37df0973-2e4b-f0e8-0b8b-3814e2e9f7e8"
+        },
+        {
+          "Name": "Credit card numbers in public sites",
+          "Status": "Completed",
+          "ContentMatchQuery": "SensitiveType:\"Credit Card Number|1..500|85..100\"",
+          "ExchangeLocation": [],
+          "SharePointLocation": [
+            "All"
+          ],
+          "CreatedBy": "Alex Wilber",
+          "JobEndTime": "2026-09-23T09:00:00Z",
+          "Items": 37,
+          "Size": 12038854,
+          "Identity": "decf2315-66ac-1e90-de2b-355336f3a639"
+        }
+      ]
+    },
+    "eDiscovery.SecurityFilters": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 0.6,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "FilterName": "EU investigators - EU data only",
+          "Action": "All",
+          "Users": [
+            "eu-investigators@contoso.com"
+          ],
+          "Filters": [
+            "Mailbox_CountryCode -eq '380'",
+            "Site_Path -like 'https://contoso.sharepoint.com/sites/EU*'"
+          ],
+          "Region": "",
+          "Description": "Compliance boundary for the EU investigations team."
+        }
+      ]
+    },
+    "eDiscovery.CaseAdmins": {
+      "command": null,
+      "state": "Unavailable",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 0.2,
+      "message": "Get-eDiscoveryCaseAdmin isn't available in this session. Your account might not have a Purview role that includes it, or the feature isn't available in this tenant.",
+      "warnings": null,
+      "items": []
+    },
+    "Audit.RetentionPolicies": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 0.9,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Exchange admin actions - 10 years",
+          "Priority": 10,
+          "RetentionDuration": "TenYears",
+          "RecordTypes": [
+            "ExchangeAdmin"
+          ],
+          "Operations": [],
+          "UserIds": [],
+          "Enabled": true,
+          "Guid": "6dcce12d-ac5d-15bc-2116-81c6878561c0",
+          "Identity": "6dcce12d-ac5d-15bc-2116-81c6878561c0",
+          "ImmutableId": "6dcce12d-ac5d-15bc-2116-81c6878561c0",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        },
+        {
+          "Name": "DLP events - 3 years",
+          "Priority": 20,
+          "RetentionDuration": "ThreeYears",
+          "RecordTypes": [
+            "ComplianceDLPExchange",
+            "ComplianceDLPSharePoint",
+            "DLPEndpoint"
+          ],
+          "Operations": [],
+          "UserIds": [],
+          "Enabled": true,
+          "Guid": "8e5cea4c-659f-ac2f-ca0e-f228fbce6f94",
+          "Identity": "8e5cea4c-659f-ac2f-ca0e-f228fbce6f94",
+          "ImmutableId": "8e5cea4c-659f-ac2f-ca0e-f228fbce6f94",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        },
+        {
+          "Name": "Executive mailbox access - 1 year",
+          "Priority": 30,
+          "RetentionDuration": "OneYear",
+          "RecordTypes": [
+            "ExchangeItem"
+          ],
+          "Operations": [
+            "MailItemsAccessed",
+            "Send"
+          ],
+          "UserIds": [
+            "ceo@contoso.com",
+            "cfo@contoso.com"
+          ],
+          "Enabled": true,
+          "Guid": "0993b683-36f8-3a66-0c6b-be67606bd005",
+          "Identity": "0993b683-36f8-3a66-0c6b-be67606bd005",
+          "ImmutableId": "0993b683-36f8-3a66-0c6b-be67606bd005",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        }
+      ]
+    },
+    "Audit.Configuration": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 0.6,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Admin Audit Log Settings",
+          "UnifiedAuditLogIngestionEnabled": true,
+          "AdminAuditLogEnabled": true,
+          "AdminAuditLogAgeLimit": "90.00:00:00",
+          "AdminAuditLogCmdlets": [
+            "*"
+          ],
+          "WhenChangedUTC": "2025-10-01T09:00:00Z"
+        }
+      ]
+    },
+    "InsiderRiskManagement.Policies": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 1.0,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Data theft by departing users",
+          "InsiderRiskScenario": "IntellectualPropertyTheft",
+          "Enabled": true,
+          "Mode": "Enable",
+          "Guid": "e63ce1e1-edc3-c714-a3cd-10b5724e3595",
+          "Identity": "e63ce1e1-edc3-c714-a3cd-10b5724e3595",
+          "ImmutableId": "e63ce1e1-edc3-c714-a3cd-10b5724e3595",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        },
+        {
+          "Name": "Data leaks by priority users",
+          "InsiderRiskScenario": "LeakOfInformation",
+          "Enabled": true,
+          "Mode": "Enable",
+          "Guid": "215360ac-1921-f048-0477-7de72caceaba",
+          "Identity": "215360ac-1921-f048-0477-7de72caceaba",
+          "ImmutableId": "215360ac-1921-f048-0477-7de72caceaba",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        }
+      ]
+    },
+    "InsiderRiskManagement.Cases": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 0.9,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "IRM case 12 - unusual downloads",
+          "Identity": "26ba1cae-d404-5298-504b-8157ebf1eb6d",
+          "CaseType": "InsiderRisk",
+          "Status": "Active",
+          "Description": "Opened from a high-severity alert.",
+          "CreatedDateTime": "2026-09-17T09:00:00Z",
+          "ClosedDateTime": null,
+          "ClosedBy": null,
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedDateTime": "2026-09-30T09:00:00Z"
+        }
+      ]
+    },
+    "CommunicationCompliance.Policies": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 1.2,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Inappropriate text",
+          "Enabled": true,
+          "Reviewers": [
+            "cc-reviewers@contoso.com"
+          ],
+          "Comment": "Detects threats, harassment and discrimination in Teams and email.",
+          "Guid": "a61403f3-26ae-351d-c8f1-2c41850c5c1f",
+          "Identity": "a61403f3-26ae-351d-c8f1-2c41850c5c1f",
+          "ImmutableId": "a61403f3-26ae-351d-c8f1-2c41850c5c1f",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        },
+        {
+          "Name": "Regulatory compliance - Finance",
+          "Enabled": true,
+          "Reviewers": [
+            "finance-compliance@contoso.com"
+          ],
+          "Comment": "Monitors communications of the trading desk.",
+          "Guid": "2067ec44-ec3a-7c1b-ca49-ad672322a5ba",
+          "Identity": "2067ec44-ec3a-7c1b-ca49-ad672322a5ba",
+          "ImmutableId": "2067ec44-ec3a-7c1b-ca49-ad672322a5ba",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        }
+      ]
+    },
+    "CommunicationCompliance.Rules": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 1.0,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Inappropriate text rule",
+          "Policy": "a61403f3-26ae-351d-c8f1-2c41850c5c1f",
+          "SamplingRate": 100,
+          "Mode": "Enforce",
+          "Condition": "(Reviewee:cc-monitored@contoso.com) AND (TrainableClassifier:Threat OR TrainableClassifier:Harassment OR TrainableClassifier:Discrimination)",
+          "Guid": "8082241b-2aa1-88de-f952-de6407a5a5c8",
+          "Identity": "8082241b-2aa1-88de-f952-de6407a5a5c8",
+          "ImmutableId": "8082241b-2aa1-88de-f952-de6407a5a5c8",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        },
+        {
+          "Name": "Regulatory compliance - Finance rule",
+          "Policy": "2067ec44-ec3a-7c1b-ca49-ad672322a5ba",
+          "SamplingRate": 10,
+          "Mode": "Enforce",
+          "Condition": "(Reviewee:trading-desk@contoso.com) AND (TrainableClassifier:RegulatoryCollusion OR TrainableClassifier:StockManipulation)",
+          "Guid": "89f85366-599e-efe4-2de7-6cc66a35d87c",
+          "Identity": "89f85366-599e-efe4-2de7-6cc66a35d87c",
+          "ImmutableId": "89f85366-599e-efe4-2de7-6cc66a35d87c",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2026-03-15T09:00:00Z",
+          "WhenChangedUTC": "2026-09-01T09:00:00Z"
+        }
+      ]
+    },
+    "InformationBarriers.Policies": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 0.8,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Sales-Research",
+          "State": "Active",
+          "AssignedSegment": "Sales",
+          "SegmentsAllowed": [],
+          "SegmentsBlocked": [
+            "Research"
+          ],
+          "ModerationAllowed": false,
+          "Identity": "b638d0a2-edaa-4544-5cda-d28ded3a1d03",
+          "WhenChanged": "2026-07-24T09:00:00Z"
+        },
+        {
+          "Name": "Research-Sales",
+          "State": "Active",
+          "AssignedSegment": "Research",
+          "SegmentsAllowed": [],
+          "SegmentsBlocked": [
+            "Sales"
+          ],
+          "ModerationAllowed": false,
+          "Identity": "03ed0469-5f66-af8b-efe3-cc74e871d720",
+          "WhenChanged": "2026-07-24T09:00:00Z"
+        }
+      ]
+    },
+    "InformationBarriers.Segments": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 0.7,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Sales",
+          "UserGroupFilter": "Department -eq 'Sales'",
+          "Identity": "20612475-9436-1911-226d-6e0f1c93c65b",
+          "WhenChanged": "2026-07-23T09:00:00Z"
+        },
+        {
+          "Name": "Research",
+          "UserGroupFilter": "Department -eq 'Research'",
+          "Identity": "97042806-4eb0-d13f-8ef9-a8eb42d9284f",
+          "WhenChanged": "2026-07-23T09:00:00Z"
+        },
+        {
+          "Name": "Everyone else",
+          "UserGroupFilter": "Department -ne 'Sales' -and Department -ne 'Research'",
+          "Identity": "a50f3fe8-17df-cb0d-b05a-f9821f43e99b",
+          "WhenChanged": "2026-07-23T09:00:00Z"
+        }
+      ]
+    },
+    "InformationBarriers.ApplicationStatus": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 0.6,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Identity": "4c359f9b-6e0a-75ad-cad1-d590a58adb8c",
+          "Status": "Completed",
+          "CreationTime": "2026-07-25T09:00:00Z",
+          "LastModifiedTime": "2026-07-25T12:00:00Z",
+          "ApplicationTotalCount": 1214,
+          "ApplicationFailedCount": 0,
+          "PercentProgress": 100
+        }
+      ]
+    },
+    "Alerts.AlertPolicies": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 1.7,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "Elevation of Exchange admin privilege",
+          "Category": "Permissions",
+          "Severity": "Low",
+          "Disabled": false,
+          "IsSystemRule": true,
+          "AggregationType": "None",
+          "NotifyUser": [
+            "TenantAdmins"
+          ],
+          "ThreatType": "Activity",
+          "Guid": "5530ba9a-c64c-6056-1f69-6f5ad952e36a",
+          "Identity": "5530ba9a-c64c-6056-1f69-6f5ad952e36a",
+          "ImmutableId": "5530ba9a-c64c-6056-1f69-6f5ad952e36a",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2025-08-27T09:00:00Z",
+          "WhenChangedUTC": "2025-08-27T09:00:00Z"
+        },
+        {
+          "Name": "Creation of forwarding/redirect rule",
+          "Category": "ThreatManagement",
+          "Severity": "Informational",
+          "Disabled": false,
+          "IsSystemRule": true,
+          "AggregationType": "None",
+          "NotifyUser": [
+            "TenantAdmins"
+          ],
+          "ThreatType": "Activity",
+          "Guid": "d7032ea2-2ac4-8a4f-83a4-daa753c0a294",
+          "Identity": "d7032ea2-2ac4-8a4f-83a4-daa753c0a294",
+          "ImmutableId": "d7032ea2-2ac4-8a4f-83a4-daa753c0a294",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2025-08-27T09:00:00Z",
+          "WhenChangedUTC": "2025-08-27T09:00:00Z"
+        },
+        {
+          "Name": "Unusual volume of file deletion",
+          "Category": "InformationGovernance",
+          "Severity": "Medium",
+          "Disabled": false,
+          "IsSystemRule": true,
+          "AggregationType": "AnomalousAggregation",
+          "NotifyUser": [
+            "TenantAdmins"
+          ],
+          "ThreatType": "Activity",
+          "Guid": "990dd43a-3a78-7799-3b8b-c770959b13cb",
+          "Identity": "990dd43a-3a78-7799-3b8b-c770959b13cb",
+          "ImmutableId": "990dd43a-3a78-7799-3b8b-c770959b13cb",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2025-08-27T09:00:00Z",
+          "WhenChangedUTC": "2025-08-27T09:00:00Z"
+        },
+        {
+          "Name": "DLP: high volume of financial data shared",
+          "Category": "DataLossPrevention",
+          "Severity": "High",
+          "Disabled": false,
+          "IsSystemRule": false,
+          "AggregationType": "SimpleAggregation",
+          "NotifyUser": [
+            "dlp-alerts@contoso.com"
+          ],
+          "ThreatType": "Activity",
+          "Guid": "9cfa6d37-f579-c7d4-3238-df8ad631ff5e",
+          "Identity": "9cfa6d37-f579-c7d4-3238-df8ad631ff5e",
+          "ImmutableId": "9cfa6d37-f579-c7d4-3238-df8ad631ff5e",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2025-08-27T09:00:00Z",
+          "WhenChangedUTC": "2026-09-06T09:00:00Z"
+        },
+        {
+          "Name": "Retention label changed on a record",
+          "Category": "InformationGovernance",
+          "Severity": "Medium",
+          "Disabled": true,
+          "IsSystemRule": false,
+          "AggregationType": "None",
+          "NotifyUser": [
+            "records@contoso.com"
+          ],
+          "ThreatType": "Activity",
+          "Guid": "b063a027-9d52-1be5-988a-cdeea8525150",
+          "Identity": "b063a027-9d52-1be5-988a-cdeea8525150",
+          "ImmutableId": "b063a027-9d52-1be5-988a-cdeea8525150",
+          "CreatedBy": "Megan Bowen",
+          "LastModifiedBy": "Alex Wilber",
+          "WhenCreatedUTC": "2025-08-27T09:00:00Z",
+          "WhenChangedUTC": "2026-09-06T09:00:00Z"
+        }
+      ]
+    },
+    "Permissions.RoleGroups": {
+      "command": null,
+      "state": "Loaded",
+      "retrievedUtc": "2026-10-01T08:00:00Z",
+      "durationSeconds": 1.4,
+      "message": "",
+      "warnings": null,
+      "items": [
+        {
+          "Name": "ComplianceAdministrator",
+          "DisplayName": "Compliance Administrator",
+          "Members": [
+            "Megan Bowen"
+          ],
+          "Roles": [
+            "Case Management",
+            "Compliance Administrator",
+            "DLP Compliance Management",
+            "Hold",
+            "IB Compliance Management",
+            "Information Protection Admin",
+            "Retention Management",
+            "View-Only Audit Logs"
+          ],
+          "Description": "Members can manage settings for device management, data loss prevention, reports, and preservation.",
+          "Identity": "7e02fa51-64bc-7695-ea8b-2673d9cabc97",
+          "WhenChanged": "2026-08-29T09:00:00Z"
+        },
+        {
+          "Name": "eDiscoveryManager",
+          "DisplayName": "eDiscovery Manager",
+          "Members": [
+            "Alex Wilber",
+            "Lidia Holloway"
+          ],
+          "Roles": [
+            "Case Management",
+            "Communication",
+            "Compliance Search",
+            "Custodian",
+            "Export",
+            "Hold",
+            "Preview",
+            "Review",
+            "RMS Decrypt"
+          ],
+          "Description": "Members can perform searches and place holds on mailboxes, SharePoint Online sites, and OneDrive for Business locations.",
+          "Identity": "8a3c4543-9c22-17f4-ce3b-4c56d5d901f2",
+          "WhenChanged": "2026-08-29T09:00:00Z"
+        },
+        {
+          "Name": "InformationProtection",
+          "DisplayName": "Information Protection",
+          "Members": [
+            "Isaiah Langer"
+          ],
+          "Roles": [
+            "Information Protection Admin",
+            "Information Protection Analyst",
+            "Information Protection Investigator",
+            "Information Protection Reader"
+          ],
+          "Description": "Full control over all information protection features, including sensitivity labels and their policies, DLP, and all classifier types.",
+          "Identity": "7e19be7e-24ff-d1d3-72ff-38837279338b",
+          "WhenChanged": "2026-08-29T09:00:00Z"
+        },
+        {
+          "Name": "RecordsManagement",
+          "DisplayName": "Records Management",
+          "Members": [
+            "Lynne Robbins"
+          ],
+          "Roles": [
+            "Disposition Management",
+            "Retention Management",
+            "View-Only Retention Management"
+          ],
+          "Description": "Members can configure all aspects of records management, including retention labels and disposition reviews.",
+          "Identity": "68ac8507-fcef-ad69-9d9c-0806659c45ba",
+          "WhenChanged": "2026-08-29T09:00:00Z"
+        },
+        {
+          "Name": "InsiderRiskManagement",
+          "DisplayName": "Insider Risk Management",
+          "Members": [],
+          "Roles": [
+            "Insider Risk Management Admin",
+            "Insider Risk Management Analysis",
+            "Insider Risk Management Investigation"
+          ],
+          "Description": "Use this role group to manage insider risk management for your organization in a single group.",
+          "Identity": "2b0572fa-7259-6815-e4e5-4d8f2b8a78c2",
+          "WhenChanged": "2026-08-29T09:00:00Z"
+        },
+        {
+          "Name": "CommunicationCompliance",
+          "DisplayName": "Communication Compliance",
+          "Members": [
+            "Nestor Wilke"
+          ],
+          "Roles": [
+            "Communication Compliance Admin",
+            "Communication Compliance Analysis",
+            "Communication Compliance Investigation",
+            "Communication Compliance Viewer"
+          ],
+          "Description": "Provides permission to all the communication compliance roles: administrator, analyst, investigator, and viewer.",
+          "Identity": "10277e65-7f98-abbf-3899-90cea7a50c93",
+          "WhenChanged": "2026-08-29T09:00:00Z"
+        },
+        {
+          "Name": "GlobalReader",
+          "DisplayName": "Global Reader",
+          "Members": [
+            "Patti Fernandez"
+          ],
+          "Roles": [
+            "View-Only Configuration",
+            "View-Only Recipients",
+            "View-Only Audit Logs"
+          ],
+          "Description": "Members have read-only access to the Security & Compliance configuration.",
+          "Identity": "b7a03b10-7da7-a76e-2a7f-051305a5f2cd",
+          "WhenChanged": "2026-08-29T09:00:00Z"
+        }
+      ]
+    }
+  }
+}

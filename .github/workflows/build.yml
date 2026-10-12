@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   build:
-    name: Build and test
+    name: Build, test and package
     runs-on: windows-2022
 
     steps:
@@ -34,13 +34,47 @@ jobs:
           Install-Module ExchangeOnlineManagement -Scope CurrentUser -Force -AllowClobber
           Get-Module -ListAvailable ExchangeOnlineManagement | Select-Object Name, Version, ModuleBase
 
-      - name: Build, test and package
+      # Inno Setup 6 is part of the runner image.
+      - name: Build, test, package and build the setup
         shell: pwsh
-        run: .\build.ps1 -Package
+        run: .\build.ps1 -Package -Setup
+
+      - name: Test the setup (module already installed)
+        shell: pwsh
+        run: |
+          .\installer\test-setup.ps1 -Setup (Get-ChildItem artifacts\PurviewExplorer-*-setup.exe)[0].FullName
+          exit $LASTEXITCODE
 
       - uses: actions/upload-artifact@v7
         with:
-          name: PurviewViewer
-          path: artifacts/PurviewViewer-*.zip
+          name: PurviewExplorer
+          path: |
+            artifacts/PurviewExplorer-*.zip
+            artifacts/PurviewExplorer-*-setup.exe
           if-no-files-found: error
           retention-days: 30
+
+  # On a runner without the module, PowerShellGet 2.x or the NuGet provider, like a freshly installed
+  # Windows, Setup must install the module from the PowerShell Gallery and verify that it loads.
+  setup-clean-machine:
+    name: Test the setup on a clean machine
+    needs: build
+    runs-on: windows-2022
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: PurviewExplorer
+          path: artifacts
+
+      - name: Make the runner look like a fresh Windows
+        shell: pwsh
+        run: .\installer\make-runner-clean.ps1
+
+      - name: Install, verify and uninstall
+        shell: pwsh
+        run: |
+          .\installer\test-setup.ps1 -Setup (Get-ChildItem artifacts\PurviewExplorer-*-setup.exe)[0].FullName -ExpectModuleInstall
+          exit $LASTEXITCODE

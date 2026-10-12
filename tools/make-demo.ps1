@@ -1,12 +1,12 @@
 # Copyright (C) 2026 Francesco Valerio Buccoli. Sarda Cloud Community.
 # Licensed under the MIT License. See LICENSE in the repository root.
-# Generates src\PurviewViewer\Resources\demo-snapshot.json: a fictional "Contoso" tenant used by File > Open Demo Data.
+# Generates src\PurviewExplorer\Resources\demo-snapshot.json: a fictional "Contoso" tenant used by File > Open Demo Data.
 # All names, addresses and identifiers are made up. GUIDs and dates are deterministic so the output is stable.
 # Run: pwsh -File tools\make-demo.ps1
 #Requires -Version 7
 [CmdletBinding()]
 param(
-    [string]$OutFile = (Join-Path $PSScriptRoot '..\src\PurviewViewer\Resources\demo-snapshot.json')
+    [string]$OutFile = (Join-Path $PSScriptRoot '..\src\PurviewExplorer\Resources\demo-snapshot.json')
 )
 $ErrorActionPreference = 'Stop'
 
@@ -453,9 +453,9 @@ Add-Collection 'Alerts.AlertPolicies' $alerts -Seconds 1.7
 Add-Collection 'Permissions.RoleGroups' $roleGroups -Seconds 1.4
 
 $snapshot = [ordered]@{
-    format = 'PurviewViewer.Snapshot'
+    format = 'PurviewExplorer.Snapshot'
     formatVersion = 1
-    application = 'Purview Configuration Viewer (demo data generator)'
+    application = 'Purview Explorer (demo data generator)'
     createdUtc = (Dt 0)
     source = [ordered]@{
         kind = 'Demo'; organization = 'contoso.onmicrosoft.com'; account = 'meganb@contoso.onmicrosoft.com'
