@@ -423,12 +423,15 @@ end;
 { ---------------------------------------------------------------- installing the module and verifying }
 
 { Runs in Windows PowerShell 5.1. Typed commands aren't subject to the execution policy, unlike a script file.
-  When Setup is started from PowerShell 7, powershell.exe inherits PowerShell 7's module folders and would load
-  PowerShell 7's PackageManagement, which fails; so the command drops those folders first. }
+  powershell.exe inherits Setup's PSModulePath; when Setup was started from PowerShell 7 that lists PowerShell 7's
+  folders (whose PackageManagement can't load in Windows PowerShell) and may lack the per-user folder, so the
+  command first rebuilds the default Windows PowerShell module path: Documents, then the user and machine values. }
 function ModuleInstallCommand(const Scope: String): String;
 begin
   Result :=
-    '$env:PSModulePath = (($env:PSModulePath -split '';'') | Where-Object { $_ -and $_ -notmatch ''\\PowerShell\\'' }) -join '';''; ' +
+    '$env:PSModulePath = ((@([Environment]::GetFolderPath(''MyDocuments'') + ''\WindowsPowerShell\Modules'') + ' +
+      '([Environment]::GetEnvironmentVariable(''PSModulePath'', ''User'') -split '';'') + ' +
+      '([Environment]::GetEnvironmentVariable(''PSModulePath'', ''Machine'') -split '';'')) | Where-Object { $_ }) -join '';''; ' +
     '$ErrorActionPreference = ''Stop''; $ProgressPreference = ''SilentlyContinue''; ' +
     '[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12; ' +
     'try { ' +
