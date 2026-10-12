@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Copyright (C) 2026 Francesco Valerio Buccoli. Sarda Cloud Community.
+    Licensed under the MIT License. See LICENSE in the repository root.
+  -->
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>SardaCloud.PurviewViewer</RootNamespace>
+    <AssemblyName>PurviewViewer</AssemblyName>
+    <AssemblyTitle>Purview Configuration Viewer</AssemblyTitle>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Resources\PurviewViewer.ico</ApplicationIcon>
+    <GenerateResourceUsePreserializedResources>false</GenerateResourceUsePreserializedResources>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+    <!-- Compile against Windows PowerShell 5.1; at run time System.Management.Automation comes from the GAC. -->
+    <PackageReference Include="Microsoft.PowerShell.5.1.ReferenceAssemblies" Version="1.0.0" PrivateAssets="all" IncludeAssets="compile" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\demo-snapshot.json" LogicalName="PurviewViewer.DemoSnapshot.json" />
+    <EmbeddedResource Include="Resources\PurviewViewer.ico" LogicalName="PurviewViewer.AppIcon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="PurviewViewer.Tests" />
+  </ItemGroup>
+
+</Project>

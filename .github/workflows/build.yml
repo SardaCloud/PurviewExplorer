@@ -1,0 +1,46 @@
+# Copyright (C) 2026 Francesco Valerio Buccoli. Sarda Cloud Community.
+# Licensed under the MIT License. See LICENSE in the repository root.
+
+name: Build
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['**.md', 'LICENSE', 'docs/**']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and test
+    runs-on: windows-2022
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '9.0.x'
+
+      # The integration tests load the module in the hosted Windows PowerShell runspace.
+      - name: Install ExchangeOnlineManagement
+        shell: powershell
+        run: |
+          Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser | Out-Null
+          Install-Module ExchangeOnlineManagement -Scope CurrentUser -Force -AllowClobber
+          Get-Module -ListAvailable ExchangeOnlineManagement | Select-Object Name, Version, ModuleBase
+
+      - name: Build, test and package
+        shell: pwsh
+        run: .\build.ps1 -Package
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: PurviewViewer
+          path: artifacts/PurviewViewer-*.zip
+          if-no-files-found: error
+          retention-days: 30

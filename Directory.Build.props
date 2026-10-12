@@ -1,0 +1,37 @@
+<Project>
+
+  <!--
+    Copyright (C) 2026 Francesco Valerio Buccoli. Sarda Cloud Community.
+    Licensed under the MIT License. See LICENSE in the repository root.
+  -->
+
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Deterministic>true</Deterministic>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <!-- One version for everything, read from the VERSION file at the root. -->
+  <PropertyGroup>
+    <PurviewViewerVersion>$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)VERSION').Trim())</PurviewViewerVersion>
+    <Version>$(PurviewViewerVersion)</Version>
+    <AssemblyVersion>$(PurviewViewerVersion).0</AssemblyVersion>
+    <FileVersion>$(PurviewViewerVersion).0</FileVersion>
+    <InformationalVersion>$(PurviewViewerVersion)</InformationalVersion>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Product>Purview Configuration Viewer</Product>
+    <Company>Sarda Cloud Community</Company>
+    <Authors>Francesco Valerio Buccoli</Authors>
+    <Copyright>Copyright (C) 2026 Francesco Valerio Buccoli</Copyright>
+    <Description>Read-only viewer for Microsoft Purview configuration, one tab per solution.</Description>
+    <PackageProjectUrl>https://github.com/SardaCloud/PurviewViewer</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/SardaCloud/PurviewViewer</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+</Project>
