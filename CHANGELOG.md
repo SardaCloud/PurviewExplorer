@@ -7,6 +7,24 @@ All notable changes to Purview Explorer (called Purview Configuration Viewer in 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-10-12
+
+### Added
+
+- **x64 and Arm64 builds.** Each release has a setup and a zip per architecture
+  (`PurviewExplorer-0.3.0-win-x64-setup.exe`, `-win-arm64-setup.exe`, `-win-x64.zip`, `-win-arm64.zip`). The x64
+  build targets .NET Framework 4.8; the Arm64 build targets .NET Framework 4.8.1 and runs natively on Windows 11
+  on Arm. Each setup checks the requirements of its architecture and refuses to run on the other one.
+- Help > About and the prerequisite report show the architecture.
+
+### Changed
+
+- **Privacy.** The prerequisite report (Help > Check Prerequisites, `/CheckPrerequisites`, and the setup's last
+  page) replaces the user's own folders with placeholders such as `<Documents>`, and the setup's requirements
+  page says whether the module is installed for the current user or for all users instead of showing its folder.
+  Reports can be shared without revealing the user name. The documentation screenshots were replaced: earlier ones
+  showed an account and folder path.
+
 ## [0.2.0] - 2026-10-12
 
 ### Added
@@ -57,5 +75,6 @@ application, read-only.
 - `/SelfTest`, which drives the whole UI with the demo data, and xUnit tests including hosted-runspace
   integration tests.
 
+[0.3.0]: https://github.com/SardaCloud/PurviewExplorer/releases/tag/v0.3.0
 [0.2.0]: https://github.com/SardaCloud/PurviewExplorer/releases/tag/v0.2.0
 [0.1.0]: https://github.com/SardaCloud/PurviewExplorer/releases/tag/v0.1.0

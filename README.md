@@ -45,6 +45,7 @@ refuses to run any cmdlet that doesn't start with `Get-`.
 - **Offline snapshots.** Save the whole configuration to a diff-friendly JSON file and open it later, anywhere.
 - **A setup that checks everything.** It checks the requirements, installs the PowerShell module if it's
   missing, and confirms that Purview Explorer can load it. Or skip the setup: it's one 400 KB executable.
+- **Native on x64 and Arm64.** Separate builds for Intel/AMD PCs and for Windows 11 on Arm.
 
 ## Features
 
@@ -74,15 +75,19 @@ refuses to run any cmdlet that doesn't start with `Get-`.
 
 ## Download and install
 
-From the [latest release](https://github.com/SardaCloud/PurviewExplorer/releases/latest), get either:
+From the [latest release](https://github.com/SardaCloud/PurviewExplorer/releases/latest), pick the build for the
+PC you'll run it on: **x64** for Intel and AMD processors (almost all PCs and servers), **arm64** for Windows 11
+on Arm (for example Snapdragon-based PCs). Not sure? *Settings > System > About > System type* says
+"x64-based processor" or "ARM-based processor".
 
-- **`PurviewExplorer-<version>-setup.exe`** (recommended): a setup wizard that checks the requirements and can
-  install what's missing; or
-- **`PurviewExplorer-<version>.zip`**: unzip it anywhere and run `PurviewExplorer.exe`; install the PowerShell
-  module yourself (see [Requirements](#requirements)).
+| Download | What it is |
+|---|---|
+| `PurviewExplorer-<version>-win-x64-setup.exe`<br>`PurviewExplorer-<version>-win-arm64-setup.exe` | **Recommended.** A setup wizard that checks the requirements and can install what's missing |
+| `PurviewExplorer-<version>-win-x64.zip`<br>`PurviewExplorer-<version>-win-arm64.zip` | `PurviewExplorer.exe`: unzip it anywhere and run it; install the PowerShell module yourself (see [Requirements](#requirements)) |
 
-Neither the setup nor the executable is code-signed, so Windows SmartScreen may warn the first time; choose
-**More info > Run anyway**, or build them yourself. `SHA256SUMS.txt` in each release lists their SHA-256 hashes.
+Each setup refuses to run on the other architecture. Neither the setups nor the executables are code-signed, so
+Windows SmartScreen may warn the first time; choose **More info > Run anyway**, or build them yourself.
+`SHA256SUMS.txt` in each release lists their SHA-256 hashes.
 
 ### What the setup does
 
@@ -92,9 +97,9 @@ Neither the setup nor the executable is code-signed, so Windows SmartScreen may 
 
 1. Asks whether to install **for you only** (the default, no administrator rights needed, into
    `%LOCALAPPDATA%\Programs\Sarda Cloud\Purview Explorer`) or **for all users** (into Program Files).
-2. **Checks the requirements** and shows what it found: Windows 10 version 1607 / Windows Server 2016 or later,
-   .NET Framework 4.8, Windows PowerShell 5.1 and the ExchangeOnlineManagement module 3.2.0 or later. It won't
-   continue without the first three, which are part of current Windows versions.
+2. **Checks the requirements** and shows what it found: Windows, .NET Framework, Windows PowerShell 5.1 and the
+   ExchangeOnlineManagement module 3.2.0 or later (see [Requirements](#requirements)). It won't continue without
+   the first three, which are part of current Windows versions.
 3. If the module is missing or too old, offers to **install it from the PowerShell Gallery** (selected by
    default): for the current user, or for all users when installing for all users.
 4. Installs Purview Explorer with a Start menu shortcut (and, if you choose, a desktop shortcut) and an entry
@@ -106,22 +111,26 @@ Uninstalling removes the application and its shortcuts. It leaves your settings 
 which other tools may use.
 
 Setup supports the usual [Inno Setup command-line switches](https://jrsoftware.org/ishelp/topic_setupcmdline.htm)
-for unattended installs, for example:
+for unattended installs, for example (with the x64 setup):
 
 ```text
-PurviewExplorer-<version>-setup.exe /VERYSILENT /CURRENTUSER                         install for the current user
-PurviewExplorer-<version>-setup.exe /VERYSILENT /ALLUSERS                            install for all users (elevated)
-PurviewExplorer-<version>-setup.exe /VERYSILENT /MERGETASKS="!installmodule"         don't install the module
-PurviewExplorer-<version>-setup.exe /VERYSILENT /LOG="C:\Temp\PurviewExplorer.log"   write a log, including the checks
+PurviewExplorer-<version>-win-x64-setup.exe /VERYSILENT /CURRENTUSER                         install for the current user
+PurviewExplorer-<version>-win-x64-setup.exe /VERYSILENT /ALLUSERS                            install for all users (elevated)
+PurviewExplorer-<version>-win-x64-setup.exe /VERYSILENT /MERGETASKS="!installmodule"         don't install the module
+PurviewExplorer-<version>-win-x64-setup.exe /VERYSILENT /LOG="C:\Temp\PurviewExplorer.log"   write a log, including the checks
 ```
 
-A silent install stops if Windows, .NET Framework 4.8 or Windows PowerShell 5.1 is missing. The log records
-every check and the result of the installation check.
+A silent install stops if Windows, .NET Framework or Windows PowerShell 5.1 is missing. The log records every
+check and the result of the installation check.
 
 ## Requirements
 
-- Windows 10 version 1607 or later, Windows 11, or Windows Server 2016 or later (.NET Framework 4.8 and Windows
-  PowerShell 5.1 are built in).
+| | x64 | arm64 |
+|---|---|---|
+| Windows | Windows 10 version 1607 or later, Windows 11, Windows Server 2016 or later | Windows 11 on Arm |
+| .NET Framework | 4.8 or later (built into Windows 10 version 1903 and later) | 4.8.1 or later (built into Windows 11 version 22H2 and later) |
+| Windows PowerShell | 5.1 (built in) | 5.1 (built in) |
+
 - The **ExchangeOnlineManagement** PowerShell module, version 3.2.0 or later. The setup can install it for you;
   otherwise:
 
@@ -130,7 +139,8 @@ every check and the result of the installation check.
   ```
 
   The module is found whether it was installed for Windows PowerShell or PowerShell 7. *Help > Check
-  Prerequisites* verifies that it loads, without signing in.
+  Prerequisites* verifies that it loads, without signing in. Its report replaces your own folders (which contain
+  your user name) with placeholders such as `<Documents>`, so you can paste it into an issue.
 - An account with permission to read the Purview configuration, for example a member of the *Compliance
   Administrator* or *Organization Management* role group. Some collections need specific roles (eDiscovery,
   Insider Risk Management, Communication Compliance); without them those collections show as *not available*.
@@ -258,29 +268,36 @@ A snapshot contains your tenant's configuration (names, addresses, conditions). 
 
 ## Building
 
-You need Windows and the .NET SDK (8 or later; it builds the `net48` project without Visual Studio). Building the
-setup also needs [Inno Setup 6](https://jrsoftware.org/isinfo.php) (`winget install JRSoftware.InnoSetup`).
+You need Windows and the .NET SDK (8 or later; it builds the .NET Framework project without Visual Studio).
+Building the setups also needs [Inno Setup 6](https://jrsoftware.org/isinfo.php) (`winget install JRSoftware.InnoSetup`).
 
 ```powershell
-.\build.ps1             # Release build + all tests
-.\build.ps1 -Package    # also artifacts\PurviewExplorer-<version>.zip
-.\build.ps1 -Setup      # also artifacts\PurviewExplorer-<version>-setup.exe
-.\installer\test-setup.ps1 -Setup .\artifacts\PurviewExplorer-<version>-setup.exe   # install, check, uninstall
+.\build.ps1                         # Release build + all tests
+.\build.ps1 -Package                # also artifacts\PurviewExplorer-<version>-win-x64.zip and -win-arm64.zip
+.\build.ps1 -Setup                  # also artifacts\PurviewExplorer-<version>-win-x64-setup.exe and -win-arm64-setup.exe
+.\build.ps1 -Setup -Arch x64        # only one architecture
+.\installer\test-setup.ps1 -Setup .\artifacts\PurviewExplorer-<version>-win-x64-setup.exe   # install, check, uninstall
 ```
+
+The released executables are built per architecture: x64 targets .NET Framework 4.8 and ARM64 targets .NET
+Framework 4.8.1, the first version that runs natively on Arm64. `build.ps1` checks that each executable is built
+for the processor it claims. The tests use the AnyCPU build.
 
 The version comes from the `VERSION` file. The tests include an integration test that loads
 ExchangeOnlineManagement in the hosted runspace (when the module is installed), one that exercises the
 Connect-IPPSSession error path without network access, and one that runs `/SelfTest`, which drives every tab,
 collection, properties dialog, filter and snapshot round trip. CI installs the module so all of them run.
 
-CI also tests the setup twice: on the build machine, where the module is installed, and on a clean runner from
-which the module, PowerShellGet 2 and the NuGet provider have been removed, like a freshly installed Windows. There
-the setup must install the module from the PowerShell Gallery and confirm that Purview Explorer loads it.
+CI also tests the setups: the x64 setup on the build machine, where the module is installed, and each setup on a
+clean runner of its own architecture (Windows Server on x64, Windows 11 on Arm64) from which the module,
+PowerShellGet 2 and the NuGet provider have been removed, like a freshly installed Windows. There the setup must
+install the module from the PowerShell Gallery and confirm that Purview Explorer loads it.
 
 | Script | Purpose |
 |---|---|
 | `installer\PurviewExplorer.iss` | The Inno Setup script: requirement checks, module installation, verification |
 | `installer\test-setup.ps1` | Installs silently, checks files, shortcut, uninstall entry, checks and verification, then uninstalls |
+| `installer\make-runner-clean.ps1` | Strips a CI runner down to what a freshly installed Windows has |
 | `assets\make-assets.ps1` | Draws the icon, README logos and setup wizard images from the Sarda Cloud logo |
 | `tools\make-demo.ps1` | Regenerates the fictional demo snapshot (`pwsh`) |
 

@@ -34,6 +34,11 @@ namespace SardaCloud.PurviewExplorer
         public static string Copyright =>
             typeof(AppInfo).Assembly.GetCustomAttribute<AssemblyCopyrightAttribute>()?.Copyright ?? "Copyright (C) 2026 " + Author;
 
+        /// <summary>Architecture of this process: x64 or arm64 for the released builds.</summary>
+        public static string Architecture => System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture.ToString().ToLowerInvariant();
+
+        public static string OSArchitecture => System.Runtime.InteropServices.RuntimeInformation.OSArchitecture.ToString().ToLowerInvariant();
+
         public static string ProductAndVersion => ProductName + " " + Version;
     }
 
@@ -60,7 +65,8 @@ namespace SardaCloud.PurviewExplorer
             }
 
             var mutexes = CreateMutexes();
-            Settings = AppSettings.Load();
+            // Screenshots and the self-test must never show (or change) the user's saved account and settings.
+            Settings = startup.ScreenshotPath != null || startup.SelfTestLog != null ? new AppSettings() : AppSettings.Load();
             Application.Run(new MainForm(Settings, startup));
             GC.KeepAlive(mutexes);
 

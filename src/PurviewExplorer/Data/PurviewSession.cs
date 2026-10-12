@@ -246,13 +246,16 @@ namespace SardaCloud.PurviewExplorer.Data
 
         /// <summary>
         /// Verifies that the module can be found and loaded in the hosted runspace, without signing in.
-        /// Returns a human-readable report; <paramref name="ok"/> tells whether connecting should work.
+        /// Returns a human-readable report, with the user's own folders replaced by placeholders so it can be
+        /// shared; <paramref name="ok"/> tells whether connecting should work.
         /// </summary>
-        public static string CheckPrerequisites(out bool ok)
+        public static string CheckPrerequisites(out bool ok) => PathPrivacy.Redact(BuildPrerequisiteReport(out ok));
+
+        private static string BuildPrerequisiteReport(out bool ok)
         {
             ok = false;
             var report = new System.Text.StringBuilder();
-            report.AppendLine($"{AppInfo.ProductAndVersion}, {(System.Environment.Is64BitProcess ? "64-bit" : "32-bit")} process");
+            report.AppendLine($"{AppInfo.ProductAndVersion}, {AppInfo.Architecture} process on {AppInfo.OSArchitecture} Windows");
             report.AppendLine($"Windows: {WindowsDescription()}");
             report.AppendLine($".NET Framework: {DotNetFrameworkDescription()} (CLR {System.Environment.Version})");
             report.AppendLine($"Windows PowerShell engine: System.Management.Automation {System.Diagnostics.FileVersionInfo.GetVersionInfo(typeof(PSObject).Assembly.Location).ProductVersion}");

@@ -424,6 +424,30 @@ namespace SardaCloud.PurviewExplorer.Tests
         }
     }
 
+    public class PathPrivacyTests
+    {
+        [Fact]
+        public void ReplacesTheUsersFoldersWithPlaceholders()
+        {
+            var docs = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            var profile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            var text = $"ExchangeOnlineManagement 3.10.1: {docs}\\WindowsPowerShell\\Modules\\x.psd1\r\nTemp: {profile.ToUpperInvariant()}\\AppData\\Local\\Temp";
+            var redacted = PathPrivacy.Redact(text);
+            Assert.Contains("<Documents>\\WindowsPowerShell\\Modules\\x.psd1", redacted);
+            Assert.Contains("<LocalAppData>\\Temp", redacted);
+            Assert.DoesNotContain(Environment.UserName, redacted, StringComparison.OrdinalIgnoreCase);
+            Assert.Equal("C:\\Program Files\\WindowsPowerShell\\Modules", PathPrivacy.Redact("C:\\Program Files\\WindowsPowerShell\\Modules"));
+        }
+
+        [Fact]
+        public void PrerequisiteReportContainsNoUserName()
+        {
+            var report = PurviewSession.CheckPrerequisites(out _);
+            Assert.DoesNotContain("\\Users\\" + Environment.UserName, report, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains(" process on ", report);
+        }
+    }
+
     public class WorkspaceQueueTests
     {
         private sealed class FakeSession : IPurviewSession

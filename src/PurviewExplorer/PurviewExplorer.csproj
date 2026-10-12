@@ -12,11 +12,23 @@
     <RootNamespace>SardaCloud.PurviewExplorer</RootNamespace>
     <AssemblyName>PurviewExplorer</AssemblyName>
     <AssemblyTitle>Purview Explorer</AssemblyTitle>
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Resources\PurviewExplorer.ico</ApplicationIcon>
     <GenerateResourceUsePreserializedResources>false</GenerateResourceUsePreserializedResources>
+  </PropertyGroup>
+
+  <!--
+    Released builds are per architecture: dotnet build -p:Platform=x64 or -p:Platform=ARM64 (see build.ps1).
+    ARM64 needs .NET Framework 4.8.1, the first version that runs natively on Arm64 (Windows 11).
+    The default AnyCPU build is what the tests use.
+  -->
+  <PropertyGroup Condition="'$(Platform)' == 'x64'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Platform)' == 'ARM64'">
+    <TargetFramework>net481</TargetFramework>
+    <PlatformTarget>ARM64</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>

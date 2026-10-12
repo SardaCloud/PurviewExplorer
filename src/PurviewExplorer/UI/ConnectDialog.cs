@@ -279,7 +279,7 @@ namespace SardaCloud.PurviewExplorer.UI
             column.Controls.AddRange(new Control[]
             {
                 Line(AppInfo.ProductName, Ui.TitleFont),
-                Line($"Version {AppInfo.Version}  \u00b7  {AppInfo.Brand}", top: Ui.S(2)),
+                Line($"Version {AppInfo.Version} ({AppInfo.Architecture})  \u00b7  {AppInfo.Brand}", top: Ui.S(2)),
                 Line(AppInfo.Copyright, top: Ui.S(10)),
                 license,
                 Link(AppInfo.ProjectUrl.Replace("https://", ""), AppInfo.ProjectUrl, Ui.S(2)),

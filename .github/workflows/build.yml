@@ -34,15 +34,15 @@ jobs:
           Install-Module ExchangeOnlineManagement -Scope CurrentUser -Force -AllowClobber
           Get-Module -ListAvailable ExchangeOnlineManagement | Select-Object Name, Version, ModuleBase
 
-      # Inno Setup 6 is part of the runner image.
-      - name: Build, test, package and build the setup
+      # Builds the x64 and ARM64 executables, zips and setups. Inno Setup 6 is part of the runner image.
+      - name: Build, test, package and build the setups
         shell: pwsh
         run: .\build.ps1 -Package -Setup
 
-      - name: Test the setup (module already installed)
+      - name: Test the x64 setup (module already installed)
         shell: pwsh
         run: |
-          .\installer\test-setup.ps1 -Setup (Get-ChildItem artifacts\PurviewExplorer-*-setup.exe)[0].FullName
+          .\installer\test-setup.ps1 -Setup (Get-ChildItem artifacts\PurviewExplorer-*-win-x64-setup.exe)[0].FullName
           exit $LASTEXITCODE
 
       - uses: actions/upload-artifact@v7
@@ -54,12 +54,18 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-  # On a runner without the module, PowerShellGet 2.x or the NuGet provider, like a freshly installed
-  # Windows, Setup must install the module from the PowerShell Gallery and verify that it loads.
+  # On a runner without the module, PowerShellGet 2 or the NuGet provider, like a freshly installed Windows,
+  # each setup must install the module from the PowerShell Gallery and verify that the application loads it.
   setup-clean-machine:
-    name: Test the setup on a clean machine
+    name: Test the ${{ matrix.arch }} setup on a clean machine
     needs: build
-    runs-on: windows-2022
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { arch: x64,   runner: windows-2022 }
+          - { arch: arm64, runner: windows-11-arm }
 
     steps:
       - uses: actions/checkout@v7
@@ -76,5 +82,5 @@ jobs:
       - name: Install, verify and uninstall
         shell: pwsh
         run: |
-          .\installer\test-setup.ps1 -Setup (Get-ChildItem artifacts\PurviewExplorer-*-setup.exe)[0].FullName -ExpectModuleInstall
+          .\installer\test-setup.ps1 -Setup (Get-ChildItem artifacts\PurviewExplorer-*-win-${{ matrix.arch }}-setup.exe)[0].FullName -ExpectModuleInstall
           exit $LASTEXITCODE

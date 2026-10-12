@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to release, without the leading v (e.g. 0.2.0). Must match VERSION.'
+        description: 'Version to release, without the leading v (e.g. 0.3.0). Must match VERSION.'
         required: true
       draft:
         description: 'Create the release as a draft'
@@ -49,14 +49,14 @@ jobs:
           Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser | Out-Null
           Install-Module ExchangeOnlineManagement -Scope CurrentUser -Force -AllowClobber
 
-      - name: Build, test, package and build the setup
+      - name: Build, test, package and build the setups
         shell: pwsh
         run: .\build.ps1 -Package -Setup
 
-      - name: Test the setup (module already installed)
+      - name: Test the x64 setup (module already installed)
         shell: pwsh
         run: |
-          .\installer\test-setup.ps1 -Setup (Get-ChildItem artifacts\PurviewExplorer-*-setup.exe)[0].FullName
+          .\installer\test-setup.ps1 -Setup (Get-ChildItem artifacts\PurviewExplorer-*-win-x64-setup.exe)[0].FullName
           exit $LASTEXITCODE
 
       - uses: actions/upload-artifact@v7
@@ -68,9 +68,15 @@ jobs:
           if-no-files-found: error
 
   setup-clean-machine:
-    name: Test the setup on a clean machine
+    name: Test the ${{ matrix.arch }} setup on a clean machine
     needs: build
-    runs-on: windows-2022
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - { arch: x64,   runner: windows-2022 }
+          - { arch: arm64, runner: windows-11-arm }
 
     steps:
       - uses: actions/checkout@v7
@@ -87,7 +93,7 @@ jobs:
       - name: Install, verify and uninstall
         shell: pwsh
         run: |
-          .\installer\test-setup.ps1 -Setup (Get-ChildItem artifacts\PurviewExplorer-*-setup.exe)[0].FullName -ExpectModuleInstall
+          .\installer\test-setup.ps1 -Setup (Get-ChildItem artifacts\PurviewExplorer-*-win-${{ matrix.arch }}-setup.exe)[0].FullName -ExpectModuleInstall
           exit $LASTEXITCODE
 
   release:
@@ -135,6 +141,8 @@ jobs:
           prerelease: ${{ startsWith(steps.v.outputs.version, '0.') }}
           fail_on_unmatched_files: true
           files: |
-            dist/PurviewExplorer-*.zip
-            dist/PurviewExplorer-*-setup.exe
+            dist/PurviewExplorer-*-win-x64.zip
+            dist/PurviewExplorer-*-win-arm64.zip
+            dist/PurviewExplorer-*-win-x64-setup.exe
+            dist/PurviewExplorer-*-win-arm64-setup.exe
             dist/SHA256SUMS.txt

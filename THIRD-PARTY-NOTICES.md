@@ -8,8 +8,8 @@ licensed under the MIT License; see `LICENSE`.
 The released `PurviewExplorer.exe` contains only this project's code and resources. It redistributes no
 third-party code.
 
-The setup, `PurviewExplorer-<version>-setup.exe`, is built with **Inno Setup** and contains its setup and
-uninstall program:
+The setups, `PurviewExplorer-<version>-win-x64-setup.exe` and `-win-arm64-setup.exe`, are built with
+**Inno Setup** and contain its setup and uninstall program:
 
     Inno Setup
     Copyright (C) 1997-2026 Jordan Russell. All rights reserved.
@@ -37,7 +37,7 @@ uninstall program:
 
 At run time Purview Explorer uses components that are part of Windows or that you install, under their own terms:
 
-- **.NET Framework 4.8** and **Windows PowerShell 5.1**, part of Windows.
+- **.NET Framework 4.8** (x64) or **4.8.1** (ARM64) and **Windows PowerShell 5.1**, part of Windows.
 - The **ExchangeOnlineManagement** PowerShell module, licensed by Microsoft under its own terms, which the setup
   can download from the PowerShell Gallery. It isn't redistributed with Purview Explorer.
 - Windows **stock shell icons**, loaded from Windows at run time with `SHGetStockIconInfo`.

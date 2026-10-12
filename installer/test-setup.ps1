@@ -15,7 +15,7 @@
     runs, and Setup must install it from the PowerShell Gallery (used in CI on a clean runner).
 
 .EXAMPLE
-    .\installer\test-setup.ps1 -Setup .\artifacts\PurviewExplorer-0.2.0-setup.exe
+    .\installer\test-setup.ps1 -Setup .\artifacts\PurviewExplorer-0.3.0-win-x64-setup.exe
 #>
 [CmdletBinding()]
 param(
@@ -55,6 +55,15 @@ Check ($p.ExitCode -eq 0) "Setup exit code ($($p.ExitCode))"
 $setupLog = if (Test-Path $log) { Get-Content $log -Raw } else { '' }
 
 Check (Test-Path (Join-Path $dir 'PurviewExplorer.exe')) 'PurviewExplorer.exe installed'
+if ($Setup -match '-win-(x64|arm64)-setup\.exe$') {
+    $expected = @{ x64 = 0x8664; arm64 = 0xAA64 }[$Matches[1]]
+    $installed = Join-Path $dir 'PurviewExplorer.exe'
+    if (Test-Path $installed) {
+        $bytes = [IO.File]::ReadAllBytes($installed)
+        $machine = [BitConverter]::ToUInt16($bytes, [BitConverter]::ToInt32($bytes, 0x3C) + 4)
+        Check ($machine -eq $expected) ('PurviewExplorer.exe is the {0} build (machine 0x{1:X4})' -f $Matches[1], $machine)
+    }
+}
 Check (Test-Path (Join-Path $dir 'PurviewExplorer.exe.config')) 'PurviewExplorer.exe.config installed'
 Check (Test-Path (Join-Path $dir 'LICENSE.txt')) 'LICENSE.txt installed'
 Check (Test-Path $shortcut) 'Start menu shortcut created'

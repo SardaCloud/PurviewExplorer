@@ -1,10 +1,10 @@
 ; Copyright (C) 2026 Francesco Valerio Buccoli. Sarda Cloud Community.
 ; Licensed under the MIT License. See LICENSE in the repository root.
 ;
-; Inno Setup script for Purview Explorer. Build it with build.ps1 -Setup, or:
-;   ISCC.exe /DAppVersion=0.2.0 /DBinDir=<folder with PurviewExplorer.exe> installer\PurviewExplorer.iss
+; Inno Setup script for Purview Explorer, one setup per architecture. Build it with build.ps1 -Setup, or:
+;   ISCC.exe /DAppVersion=0.3.0 /DArch=x64|arm64 /DBinDir=<folder with PurviewExplorer.exe> installer\PurviewExplorer.iss
 ;
-; Setup checks the requirements (Windows, .NET Framework 4.8, Windows PowerShell 5.1 and the
+; Setup checks the requirements (Windows, .NET Framework, Windows PowerShell 5.1 and the
 ; ExchangeOnlineManagement module), can install the module from the PowerShell Gallery, and after
 ; installing runs "PurviewExplorer.exe /CheckPrerequisites" to confirm the module loads in the application.
 
@@ -18,15 +18,43 @@
   #define AppVersion Trim(FileRead(VersionFile))
   #expr FileClose(VersionFile)
 #endif
-#ifndef BinDir
-  #define BinDir AddBackslash(SourcePath) + "..\src\PurviewExplorer\bin\Release\net48"
+#ifndef Arch
+  #define Arch "x64"
+#endif
+
+#if Arch == "arm64"
+  ; Native Arm64 needs .NET Framework 4.8.1, which runs on Windows 11.
+  #define ArchName "Arm64"
+  #define ArchAllowed "arm64"
+  #define MinWindowsBuild "22000"
+  #define WindowsRequirement "Windows 11 on Arm64"
+  #define NetFxVersion "net481"
+  #define NetFxName ".NET Framework 4.8.1"
+  #define NetFxUrl "https://dotnet.microsoft.com/download/dotnet-framework/net481"
+  #ifndef BinDir
+    #define BinDir AddBackslash(SourcePath) + "..\src\PurviewExplorer\bin\ARM64\Release\net481"
+  #endif
+#elif Arch == "x64"
+  ; Windows 10 version 1607 / Windows Server 2016 are the oldest systems .NET Framework 4.8 supports.
+  #define ArchName "x64"
+  #define ArchAllowed "x64os"
+  #define MinWindowsBuild "14393"
+  #define WindowsRequirement "Windows 10 version 1607, Windows Server 2016 or later"
+  #define NetFxVersion "net48"
+  #define NetFxName ".NET Framework 4.8"
+  #define NetFxUrl "https://dotnet.microsoft.com/download/dotnet-framework/net48"
+  #ifndef BinDir
+    #define BinDir AddBackslash(SourcePath) + "..\src\PurviewExplorer\bin\x64\Release\net48"
+  #endif
+#else
+  #error Arch must be x64 or arm64
 #endif
 
 [Setup]
 AppId={{C8A6D82E-0CDD-424C-8ADC-1A8BD8EC3918}
 AppName={#AppName}
 AppVersion={#AppVersion}
-AppVerName={#AppName} {#AppVersion}
+AppVerName={#AppName} {#AppVersion} ({#ArchName})
 AppPublisher={#AppPublisher}
 AppPublisherURL={#AppUrl}
 AppSupportURL={#AppUrl}/issues
@@ -34,7 +62,7 @@ AppUpdatesURL={#AppUrl}/releases
 AppCopyright=Copyright (C) 2026 Francesco Valerio Buccoli
 VersionInfoVersion={#AppVersion}
 VersionInfoCompany={#AppPublisher}
-VersionInfoDescription={#AppName} Setup
+VersionInfoDescription={#AppName} Setup ({#ArchName})
 VersionInfoProductName={#AppName}
 VersionInfoProductVersion={#AppVersion}
 VersionInfoCopyright=Copyright (C) 2026 Francesco Valerio Buccoli
@@ -44,9 +72,9 @@ PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog commandline
 DefaultDirName={autopf}\Sarda Cloud\{#AppName}
 DisableProgramGroupPage=yes
-ArchitecturesInstallIn64BitMode=x64compatible
-; Windows 10 version 1607 / Windows Server 2016, the oldest systems .NET Framework 4.8 supports.
-MinVersion=10.0.14393
+ArchitecturesAllowed={#ArchAllowed}
+ArchitecturesInstallIn64BitMode={#ArchAllowed}
+MinVersion=10.0.{#MinWindowsBuild}
 
 LicenseFile=..\LICENSE
 DisableWelcomePage=no
@@ -63,7 +91,7 @@ SetupLogging=yes
 ShowLanguageDialog=no
 
 OutputDir=..\artifacts
-OutputBaseFilename=PurviewExplorer-{#AppVersion}-setup
+OutputBaseFilename=PurviewExplorer-{#AppVersion}-win-{#Arch}-setup
 Compression=lzma2/max
 SolidCompression=yes
 
@@ -96,7 +124,7 @@ Filename: "{app}\{#AppExe}"; Description: "{cm:LaunchProgram,{#AppName}}"; Flags
 const
   ModuleName = 'ExchangeOnlineManagement';
   MinModuleVersion = '3.2.0';
-  NetFxUrl = 'https://dotnet.microsoft.com/download/dotnet-framework/net48';
+  NetFxUrl = '{#NetFxUrl}';
   ManualInstallCommand = 'Install-Module ExchangeOnlineManagement -Scope CurrentUser';
   { TColor is $00BBGGRR }
   ColorOk = $00107C10;
@@ -238,6 +266,28 @@ begin
   Result := (ModuleVersion <> '') and (CompareVersions(ModuleVersion, MinModuleVersion) >= 0);
 end;
 
+function StartsWithText(const S, Prefix: String): Boolean;
+begin
+  Result := (Prefix <> '') and (Pos(Lowercase(AddBackslash(Prefix)), Lowercase(AddBackslash(S))) = 1);
+end;
+
+{ Where the module is, without the user's own folder names (shown on screen, and in screenshots). }
+function DescribeModuleLocation(const Path: String): String;
+var
+  S: String;
+begin
+  if StartsWithText(Path, ExpandConstant('{userdocs}')) then
+    Result := 'installed for the current user'
+  else if StartsWithText(Path, ExpandConstant('{commonpf}')) then
+    Result := 'installed for all users'
+  else
+  begin
+    S := Path;
+    StringChangeEx(S, ExpandConstant('{%USERPROFILE}'), '<UserProfile>', True);
+    Result := 'in ' + S;
+  end;
+end;
+
 { Check function of the "installmodule" task. }
 function ModuleNeedsInstall: Boolean;
 begin
@@ -255,7 +305,7 @@ var
   Name, Display, S: String;
 begin
   GetWindowsVersionEx(V);
-  WindowsOk := (V.Major > 10) or ((V.Major = 10) and (V.Build >= 14393));
+  WindowsOk := (V.Major > 10) or ((V.Major = 10) and (V.Build >= {#MinWindowsBuild}));
   if not RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'ProductName', Name) then
     Name := 'Windows';
   { ProductName still says "Windows 10" on Windows 11; the build number tells them apart. }
@@ -265,13 +315,13 @@ begin
     Name := Name + ', version ' + Display;
   WindowsText := Format('%s (build %d)', [Name, V.Build]);
 
-  NetFxOk := IsDotNetInstalled(net48, 0);
+  NetFxOk := IsDotNetInstalled({#NetFxVersion}, 0);
   if RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full', 'Version', S) then
     NetFxText := 'Version ' + S
   else
     NetFxText := 'Not installed';
   if not NetFxOk then
-    NetFxText := NetFxText + '. Install .NET Framework 4.8 or later, then run Setup again.';
+    NetFxText := NetFxText + '. Install {#NetFxName} or later, then run Setup again.';
 
   PowerShellOk := RegQueryStringValue(HKLM, 'SOFTWARE\Microsoft\PowerShell\3\PowerShellEngine', 'PowerShellVersion', S) and
     (CompareVersions(S, '5.1') >= 0) and FileExists(ExpandConstant('{sys}\WindowsPowerShell\v1.0\powershell.exe'));
@@ -286,8 +336,8 @@ end;
 function MissingRequirementsText: String;
 begin
   Result := '';
-  if not WindowsOk then Result := Result + '- Windows 10 version 1607, Windows Server 2016 or later' + #13#10;
-  if not NetFxOk then Result := Result + '- .NET Framework 4.8 or later (' + NetFxUrl + ')' + #13#10;
+  if not WindowsOk then Result := Result + '- {#WindowsRequirement}' + #13#10;
+  if not NetFxOk then Result := Result + '- {#NetFxName} or later (' + NetFxUrl + ')' + #13#10;
   if not PowerShellOk then Result := Result + '- Windows PowerShell 5.1' + #13#10;
   Result := '{#AppName} needs:' + #13#10 + Result;
 end;
@@ -315,7 +365,7 @@ begin
   if ModuleOk then
   begin
     SetStatus(3, 'OK', ColorOk);
-    ModuleDetail := 'Version ' + ModuleVersion + ' in ' + ModuleLocation;
+    ModuleDetail := 'Version ' + ModuleVersion + ', ' + DescribeModuleLocation(ModuleLocation);
   end
   else
   begin
@@ -341,7 +391,7 @@ begin
 
   if not HardRequirementsMet then
     SummaryLabel.Caption := 'Setup can''t continue until the requirements marked Missing are installed. ' +
-      'Get <a href="' + NetFxUrl + '">.NET Framework 4.8</a> if it''s missing, then click Check again or run Setup again.'
+      'Get <a href="' + NetFxUrl + '">{#NetFxName}</a> if it''s missing, then click Check again or run Setup again.'
   else if not ModuleOk then
     SummaryLabel.Caption := 'Everything else is ready. After installing, Setup checks that Purview Explorer can load the module.'
   else
@@ -387,8 +437,8 @@ var
 begin
   RequirementsPage := CreateCustomPage(wpLicense, 'System requirements',
     'Setup checked whether this computer has everything {#AppName} needs.');
-  Names[0] := 'Windows 10 version 1607, Windows Server 2016 or later';
-  Names[1] := '.NET Framework 4.8 or later';
+  Names[0] := '{#WindowsRequirement}';
+  Names[1] := '{#NetFxName} or later';
   Names[2] := 'Windows PowerShell 5.1';
   Names[3] := 'ExchangeOnlineManagement PowerShell module ' + MinModuleVersion + ' or later';
   StatusWidth := ScaleX(90);
@@ -440,7 +490,7 @@ begin
       'Write-Output ''Installing ' + ModuleName + ' from the PowerShell Gallery for ' + Scope + '...''; ' +
       'Install-Module -Name ' + ModuleName + ' -MinimumVersion ' + MinModuleVersion + ' -Repository PSGallery -Scope ' + Scope + ' -Force -AllowClobber; ' +
       '$m = Get-Module -ListAvailable -Name ' + ModuleName + ' | Sort-Object Version -Descending | Select-Object -First 1; ' +
-      'Write-Output (''Installed ' + ModuleName + ' {0} in {1}'' -f $m.Version, $m.ModuleBase); exit 0 ' +
+      'Write-Output (''Installed ' + ModuleName + ' {0} for ' + Scope + ''' -f $m.Version); exit 0 ' +
     '} catch { Write-Output (''ERROR: '' + $_.Exception.Message); exit 1 }';
 end;
 

@@ -24,6 +24,9 @@ It is a read-only viewer. It promises the following, and a way to break any of t
    only when the *Install the ExchangeOnlineManagement module* task is selected, that module (and the NuGet
    provider it needs) from the PowerShell Gallery. It asks for administrator rights only when you choose to
    install for all users, and runs nothing else.
+5. **Reports don't reveal who you are.** The prerequisite report (Help > Check Prerequisites,
+   `/CheckPrerequisites` and the setup's last page) replaces your own folders, such as Documents and the user
+   profile, with placeholders, so you can paste it into an issue.
 
 Also in scope: a crafted snapshot, or cmdlet output, that makes the application crash, hang or misreport in a
 way that could mislead an administrator reviewing a configuration.
@@ -32,6 +35,9 @@ way that could mislead an administrator reviewing a configuration.
 
 **Snapshots and exports describe the tenant.** Policy names, conditions, people and group addresses are what
 they are for. Review a snapshot before sharing it.
+
+**The application shows who you are.** The Connect dialog remembers the last sign-in name and the window shows
+the connected account, the tenant and the path of an open snapshot. Check a screenshot before you share it.
 
 **The module runs with your permissions.** The viewer can read whatever your account, or the app registration
 used for certificate sign-in, can read through Security & Compliance PowerShell.
@@ -46,5 +52,5 @@ or build them from source.
 
 | Version | Supported |
 | --- | --- |
-| 0.2.x | yes |
-| 0.1.x | no; upgrade to 0.2 |
+| 0.3.x | yes |
+| 0.2.x and earlier | no; upgrade to 0.3 |
