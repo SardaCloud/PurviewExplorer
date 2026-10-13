@@ -19,10 +19,11 @@ namespace SardaCloud.PurviewExplorer.UI
         private readonly RadioButton _interactive;
         private readonly RadioButton _certificate;
         private readonly TextBox _upn;
+        private readonly ComboBox _delegatedOrganization;
         private readonly CheckBox _disableWam;
         private readonly TextBox _appId;
         private readonly TextBox _thumbprint;
-        private readonly TextBox _organization;
+        private readonly ComboBox _organization;
         private readonly Control[] _interactiveControls;
         private readonly Control[] _certificateControls;
 
@@ -38,7 +39,7 @@ namespace SardaCloud.PurviewExplorer.UI
             MinimizeBox = false;
             ShowInTaskbar = false;
             ShowIcon = false;
-            ClientSize = Ui.S(470, 500);
+            ClientSize = Ui.S(470, 550);
 
             var header = Ui.CreateHeader(Icons.Get(StockIcon.MyNetwork, false), "Connect to Tenant",
                 "Sign in to Security & Compliance PowerShell (read-only access).");
@@ -57,9 +58,17 @@ namespace SardaCloud.PurviewExplorer.UI
             y = envGroup.Bottom + Ui.S(8);
 
             // Authentication
-            var authGroup = new GroupBox { Text = "Authentication", Location = new Point(x, y), Size = new Size(w, Ui.S(262)) };
+            var authGroup = new GroupBox { Text = "Authentication", Location = new Point(x, y), Size = new Size(w, Ui.S(312)) };
             int gx = Ui.S(12), indent = Ui.S(30), gy = Ui.S(22);
             int labelWidth = Ui.S(150), fieldX = indent + labelWidth, fieldW = w - fieldX - Ui.S(12);
+            ComboBox OrganizationBox() => new ComboBox
+            {
+                DropDownStyle = ComboBoxStyle.DropDown,
+                AutoCompleteMode = AutoCompleteMode.SuggestAppend,
+                AutoCompleteSource = AutoCompleteSource.ListItems,
+                Location = new Point(fieldX, gy),
+                Width = fieldW,
+            };
 
             _interactive = new RadioButton { Text = "&Interactive sign-in (delegated)", AutoSize = true, Location = new Point(gx, gy) };
             gy += Ui.S(26);
@@ -67,6 +76,12 @@ namespace SardaCloud.PurviewExplorer.UI
             _upn = new TextBox { Location = new Point(fieldX, gy), Width = fieldW };
             gy += Ui.S(26);
             var upnHint = new Label { Text = "Optional, for example admin@contoso.com", AutoSize = false, AutoEllipsis = true, Size = new Size(fieldW, Ui.S(18)), ForeColor = SystemColors.GrayText, Location = new Point(fieldX, gy) };
+            gy += Ui.S(22);
+            var delegatedLabel = new Label { Text = "Other or&ganization:", AutoSize = true, Location = new Point(indent, gy + Ui.S(3)) };
+            _delegatedOrganization = OrganizationBox();
+            _delegatedOrganization.AccessibleName = "Other organization";
+            gy += Ui.S(26);
+            var delegatedHint = new Label { Text = "Optional, for partner or guest access", AutoSize = false, AutoEllipsis = true, Size = new Size(fieldW, Ui.S(18)), ForeColor = SystemColors.GrayText, Location = new Point(fieldX, gy) };
             gy += Ui.S(22);
             _disableWam = new CheckBox { Text = "Sign in with a &browser window instead of Web Account Manager", AutoSize = true, Location = new Point(indent, gy) };
             gy += Ui.S(32);
@@ -80,15 +95,29 @@ namespace SardaCloud.PurviewExplorer.UI
             _thumbprint = new TextBox { Location = new Point(fieldX, gy), Width = fieldW };
             gy += Ui.S(28);
             var orgLabel = new Label { Text = "&Organization:", AutoSize = true, Location = new Point(indent, gy + Ui.S(3)) };
-            _organization = new TextBox { Location = new Point(fieldX, gy), Width = fieldW };
+            _organization = OrganizationBox();
+            _organization.AccessibleName = "Organization";
+
+            foreach (var recent in settings.RecentOrganizations)
+            {
+                _delegatedOrganization.Items.Add(recent);
+                _organization.Items.Add(recent);
+            }
+            var tips = new ToolTip { AutoPopDelay = 15000 };
+            tips.SetToolTip(_delegatedOrganization,
+                "Leave empty to connect to your own organization.\r\n" +
+                "To connect to another one, enter its .onmicrosoft.com domain: a customer organization\r\n" +
+                "you manage as a partner (CSP or GDAP), or an organization where your account is a guest.");
+            tips.SetToolTip(_organization, "The .onmicrosoft.com domain of the organization the app is registered and consented in.");
+            Disposed += (s, e) => tips.Dispose();
 
             authGroup.Controls.AddRange(new Control[]
             {
-                _interactive, upnLabel, _upn, upnHint, _disableWam,
+                _interactive, upnLabel, _upn, upnHint, delegatedLabel, _delegatedOrganization, delegatedHint, _disableWam,
                 _certificate, appIdLabel, _appId, thumbLabel, _thumbprint, orgLabel, _organization,
             });
             Controls.Add(authGroup);
-            _interactiveControls = new Control[] { upnLabel, _upn, upnHint, _disableWam };
+            _interactiveControls = new Control[] { upnLabel, _upn, upnHint, delegatedLabel, _delegatedOrganization, delegatedHint, _disableWam };
             _certificateControls = new Control[] { appIdLabel, _appId, thumbLabel, _thumbprint, orgLabel, _organization };
             _interactive.CheckedChanged += (s, e) => UpdateEnabled();
             _certificate.CheckedChanged += (s, e) => UpdateEnabled();
@@ -144,6 +173,7 @@ namespace SardaCloud.PurviewExplorer.UI
             // Initial values
             _environment.SelectedIndex = Math.Max(0, (int)settings.Environment);
             _upn.Text = settings.UserPrincipalName ?? "";
+            _delegatedOrganization.Text = settings.DelegatedOrganization ?? "";
             _disableWam.Checked = settings.DisableWam;
             _appId.Text = settings.AppId ?? "";
             _thumbprint.Text = settings.CertificateThumbprint ?? "";
@@ -168,42 +198,33 @@ namespace SardaCloud.PurviewExplorer.UI
                 Environment = ((EnvironmentItem)_environment.SelectedItem).Value,
                 Mode = _certificate.Checked ? AuthMode.Certificate : AuthMode.Interactive,
                 UserPrincipalName = _upn.Text.Trim(),
+                DelegatedOrganization = _delegatedOrganization.Text.Trim(),
                 DisableWam = _disableWam.Checked,
                 AppId = _appId.Text.Trim(),
                 CertificateThumbprint = Regex.Replace(_thumbprint.Text, @"[\s:\u200e\u200f]", "").ToUpperInvariant(),
                 Organization = _organization.Text.Trim(),
             };
 
-            if (options.Mode == AuthMode.Interactive)
+            var error = options.Validate(out var field);
+            if (error != null)
             {
-                if (options.UserPrincipalName.Length > 0 && !options.UserPrincipalName.Contains("@"))
+                Control control;
+                switch (field)
                 {
-                    Invalid(_upn, "Enter a user principal name such as admin@contoso.onmicrosoft.com, or leave it empty.");
-                    return;
+                    case nameof(ConnectOptions.UserPrincipalName): control = _upn; break;
+                    case nameof(ConnectOptions.DelegatedOrganization): control = _delegatedOrganization; break;
+                    case nameof(ConnectOptions.AppId): control = _appId; break;
+                    case nameof(ConnectOptions.CertificateThumbprint): control = _thumbprint; break;
+                    default: control = _organization; break;
                 }
-            }
-            else
-            {
-                if (!Guid.TryParse(options.AppId, out _))
-                {
-                    Invalid(_appId, "Enter the application (client) ID of the app registration, a GUID.");
-                    return;
-                }
-                if (!Regex.IsMatch(options.CertificateThumbprint, "^[0-9A-F]{40}$"))
-                {
-                    Invalid(_thumbprint, "Enter the 40-character hexadecimal thumbprint of a certificate in your personal (CurrentUser\\My) or computer (LocalMachine\\My) store.");
-                    return;
-                }
-                if (options.Organization.Length == 0 || !options.Organization.Contains("."))
-                {
-                    Invalid(_organization, "Enter the organization's initial domain, for example contoso.onmicrosoft.com.");
-                    return;
-                }
+                Invalid(control, error);
+                return;
             }
 
             _settings.Environment = options.Environment;
             _settings.AuthMode = options.Mode;
             _settings.UserPrincipalName = options.UserPrincipalName;
+            _settings.DelegatedOrganization = options.DelegatedOrganization;
             _settings.DisableWam = options.DisableWam;
             _settings.AppId = options.AppId;
             _settings.CertificateThumbprint = options.CertificateThumbprint;
@@ -217,6 +238,7 @@ namespace SardaCloud.PurviewExplorer.UI
             MessageBox.Show(this, message, Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             control.Focus();
             if (control is TextBox tb) tb.SelectAll();
+            else if (control is ComboBox cb) cb.SelectAll();
         }
 
         private sealed class EnvironmentItem

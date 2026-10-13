@@ -639,6 +639,234 @@ namespace SardaCloud.PurviewExplorer.Tests
         }
     }
 
+    public class ConnectOptionsTests
+    {
+        private static readonly string[] Commands = { "Get-Label", "Get-DlpCompliancePolicy" };
+
+        private static List<KeyValuePair<string, object>> Parameters(ConnectOptions o, bool disableWam = false, Func<string, bool> supported = null) =>
+            ConnectOptions.ConnectParameters(o, Commands, disableWam, supported ?? (_ => true));
+
+        private static object Value(List<KeyValuePair<string, object>> list, string name) =>
+            list.Where(p => p.Key == name).Select(p => p.Value).SingleOrDefault();
+
+        [Fact]
+        public void OwnOrganizationInCommercialUsesTheModuleDefaults()
+        {
+            var p = Parameters(new ConnectOptions { UserPrincipalName = " admin@contoso.com " });
+            Assert.Equal(new[] { "ShowBanner", "CommandName", "UserPrincipalName", "ErrorAction" }, p.Select(x => x.Key));
+            Assert.Equal("admin@contoso.com", Value(p, "UserPrincipalName"));
+            Assert.Same(Commands, Value(p, "CommandName"));
+        }
+
+        [Theory]
+        [InlineData(CloudEnvironment.Commercial, null, "https://login.microsoftonline.com/adatum.onmicrosoft.com")]
+        [InlineData(CloudEnvironment.GccHigh, "https://ps.compliance.protection.office365.us/powershell-liveid/", "https://login.microsoftonline.us/adatum.onmicrosoft.com")]
+        [InlineData(CloudEnvironment.DoD, "https://l5.ps.compliance.protection.office365.us/powershell-liveid/", "https://login.microsoftonline.us/adatum.onmicrosoft.com")]
+        [InlineData(CloudEnvironment.China, "https://ps.compliance.protection.partner.outlook.cn/powershell-liveid", "https://login.chinacloudapi.cn/adatum.onmicrosoft.com")]
+        public void OtherOrganizationSignsInThereAndMapsTheSession(CloudEnvironment environment, string connectionUri, string authorizationUri)
+        {
+            var o = new ConnectOptions { Environment = environment, UserPrincipalName = "alex@contoso.com", DelegatedOrganization = " adatum.onmicrosoft.com " };
+            Assert.True(o.IsDelegated);
+            var p = Parameters(o);
+            Assert.Equal(connectionUri, Value(p, "ConnectionUri"));
+            Assert.Equal(authorizationUri, Value(p, "AzureADAuthorizationEndpointUri"));
+            Assert.Equal("adatum.onmicrosoft.com", Value(p, "DelegatedOrganization"));
+            Assert.Equal("alex@contoso.com", Value(p, "UserPrincipalName"));
+            Assert.Single(p, x => x.Key == "AzureADAuthorizationEndpointUri");
+        }
+
+        [Theory]
+        [InlineData(CloudEnvironment.GccHigh, "https://login.microsoftonline.us/organizations")]
+        [InlineData(CloudEnvironment.DoD, "https://login.microsoftonline.us/organizations")]
+        [InlineData(CloudEnvironment.China, "https://login.chinacloudapi.cn/organizations")]
+        public void OwnOrganizationInSovereignCloudsUsesTheirEndpoints(CloudEnvironment environment, string authorizationUri)
+        {
+            var p = Parameters(new ConnectOptions { Environment = environment });
+            Assert.NotNull(Value(p, "ConnectionUri"));
+            Assert.Equal(authorizationUri, Value(p, "AzureADAuthorizationEndpointUri"));
+            Assert.Null(Value(p, "DelegatedOrganization"));
+        }
+
+        [Fact]
+        public void CertificateIgnoresTheOtherOrganizationField()
+        {
+            var o = new ConnectOptions
+            {
+                Mode = AuthMode.Certificate,
+                AppId = "36ee4c6c-0812-40a2-b820-b22ebd02bce3",
+                CertificateThumbprint = new string('A', 40),
+                Organization = "fabrikam.onmicrosoft.com",
+                DelegatedOrganization = "adatum.onmicrosoft.com",
+                UserPrincipalName = "admin@contoso.com",
+            };
+            Assert.False(o.IsDelegated);
+            var p = Parameters(o, disableWam: true);
+            Assert.Equal("fabrikam.onmicrosoft.com", Value(p, "Organization"));
+            Assert.Null(Value(p, "DelegatedOrganization"));
+            Assert.Null(Value(p, "AzureADAuthorizationEndpointUri"));
+            Assert.Null(Value(p, "UserPrincipalName"));
+            Assert.Null(Value(p, "DisableWAM"));
+        }
+
+        [Fact]
+        public void OptionalParametersFollowTheInstalledModule()
+        {
+            var o = new ConnectOptions { DelegatedOrganization = "adatum.onmicrosoft.com" };
+            var p = Parameters(o, disableWam: true, supported: name => name != "DisableWAM" && name != "ShowBanner");
+            Assert.Equal(new[] { "CommandName", "AzureADAuthorizationEndpointUri", "DelegatedOrganization", "ErrorAction" }, p.Select(x => x.Key));
+            Assert.True((bool)Value(Parameters(o, disableWam: true), "DisableWAM"));
+        }
+
+        [Theory]
+        [InlineData("contoso.onmicrosoft.com", true)]
+        [InlineData(" adatum.onmicrosoft.us ", true)]
+        [InlineData("tailspin.partner.onmschina.cn", true)]
+        [InlineData("my-org.onmicrosoft.com", true)]
+        [InlineData("contoso", false)]
+        [InlineData("admin@contoso.onmicrosoft.com", false)]
+        [InlineData("https://contoso.onmicrosoft.com", false)]
+        [InlineData("contoso..onmicrosoft.com", false)]
+        [InlineData("-contoso.onmicrosoft.com", false)]
+        [InlineData("contoso.onmicrosoft.com/", false)]
+        [InlineData("2a1b3c4d-0000-1111-2222-333344445555", false)]
+        [InlineData("", false)]
+        [InlineData(null, false)]
+        public void RecognizesOrganizationDomains(string value, bool expected)
+        {
+            Assert.Equal(expected, ConnectOptions.IsOrganizationName(value));
+        }
+
+        [Fact]
+        public void ValidationPointsAtTheFieldToCorrect()
+        {
+            string Field(ConnectOptions o) { o.Validate(out var f); return f; }
+
+            Assert.Null(new ConnectOptions().Validate(out _));
+            Assert.Null(new ConnectOptions { UserPrincipalName = "alex@contoso.com", DelegatedOrganization = "adatum.onmicrosoft.com" }.Validate(out _));
+            Assert.Equal("UserPrincipalName", Field(new ConnectOptions { UserPrincipalName = "alex" }));
+            Assert.Equal("DelegatedOrganization", Field(new ConnectOptions { DelegatedOrganization = "adatum" }));
+            Assert.Equal("DelegatedOrganization", Field(new ConnectOptions { DelegatedOrganization = "alex@adatum.onmicrosoft.com" }));
+            Assert.Contains("adatum.onmicrosoft.com", new ConnectOptions { DelegatedOrganization = "adatum" }.Validate(out _));
+
+            var cert = new ConnectOptions
+            {
+                Mode = AuthMode.Certificate,
+                AppId = "36ee4c6c-0812-40a2-b820-b22ebd02bce3",
+                CertificateThumbprint = new string('A', 40),
+                Organization = "fabrikam.onmicrosoft.com",
+                DelegatedOrganization = "not checked for certificates",
+            };
+            Assert.Null(cert.Validate(out _));
+            cert.Organization = "fabrikam";
+            Assert.Equal("Organization", Field(cert));
+            cert.CertificateThumbprint = "1234";
+            Assert.Equal("CertificateThumbprint", Field(cert));
+            cert.AppId = "app";
+            Assert.Equal("AppId", Field(cert));
+        }
+
+        private static JsonMap Info(string organization, string delegated, string upn, string tenant) => new JsonMap
+        {
+            ["State"] = "Connected",
+            ["Organization"] = organization,
+            ["DelegatedOrganization"] = delegated,
+            ["UserPrincipalName"] = upn,
+            ["TenantID"] = tenant,
+        };
+
+        [Fact]
+        public void IdentityOfAnOtherOrganizationIsThatOrganization()
+        {
+            var o = new ConnectOptions { UserPrincipalName = "alex@contoso.com", DelegatedOrganization = "adatum.onmicrosoft.com" };
+            var id = ConnectOptions.ResolveIdentity(Info("", "adatum.onmicrosoft.com", "alex@contoso.com", "11111111-2222-3333-4444-555555555555"), o);
+            Assert.Equal("adatum.onmicrosoft.com", id.Organization);
+            Assert.Equal("alex@contoso.com", id.Account);
+            Assert.Equal("11111111-2222-3333-4444-555555555555", id.TenantId);
+
+            // Without connection information, the options still name the other organization, not the account's domain.
+            id = ConnectOptions.ResolveIdentity(null, o);
+            Assert.Equal("adatum.onmicrosoft.com", id.Organization);
+            Assert.Equal("alex@contoso.com", id.Account);
+            Assert.Null(id.TenantId);
+        }
+
+        [Fact]
+        public void IdentityOfTheOwnOrganization()
+        {
+            var o = new ConnectOptions { UserPrincipalName = "admin@contoso.com" };
+            Assert.Equal("contoso.com", ConnectOptions.ResolveIdentity(Info(null, null, "admin@contoso.com", null), o).Organization);
+            Assert.Equal("contoso.onmicrosoft.com", ConnectOptions.ResolveIdentity(Info("contoso.onmicrosoft.com", "", "admin@contoso.com", null), o).Organization);
+            var none = ConnectOptions.ResolveIdentity(null, new ConnectOptions());
+            Assert.Null(none.Organization);
+            Assert.Null(none.Account);
+        }
+
+        [Fact]
+        public void IdentityOfACertificateConnection()
+        {
+            var o = new ConnectOptions { Mode = AuthMode.Certificate, AppId = "36ee4c6c-0812-40a2-b820-b22ebd02bce3", Organization = "fabrikam.onmicrosoft.com", DelegatedOrganization = "adatum.onmicrosoft.com" };
+            var id = ConnectOptions.ResolveIdentity(Info(null, null, null, null), o);
+            Assert.Equal("fabrikam.onmicrosoft.com", id.Organization);
+            Assert.Equal("App 36ee4c6c-0812-40a2-b820-b22ebd02bce3", id.Account);
+        }
+    }
+
+    public class SettingsTests
+    {
+        [Fact]
+        public void RecentOrganizationsAreMostRecentFirstWithoutDuplicates()
+        {
+            var s = new AppSettings();
+            s.RememberOrganization("adatum.onmicrosoft.com");
+            s.RememberOrganization(" fabrikam.onmicrosoft.com ");
+            s.RememberOrganization("");
+            s.RememberOrganization(null);
+            s.RememberOrganization("ADATUM.onmicrosoft.com");
+            Assert.Equal(new[] { "ADATUM.onmicrosoft.com", "fabrikam.onmicrosoft.com" }, s.RecentOrganizations);
+
+            for (int i = 0; i < 20; i++) s.RememberOrganization($"tenant{i}.onmicrosoft.com");
+            Assert.Equal(AppSettings.MaxRecentOrganizations, s.RecentOrganizations.Count);
+            Assert.Equal("tenant19.onmicrosoft.com", s.RecentOrganizations[0]);
+            Assert.Equal("tenant10.onmicrosoft.com", s.RecentOrganizations.Last());
+        }
+
+        [Fact]
+        public void RoundTripsThroughJson()
+        {
+            var s = new AppSettings
+            {
+                AuthMode = AuthMode.Interactive,
+                Environment = CloudEnvironment.GccHigh,
+                UserPrincipalName = "alex@contoso.com",
+                DelegatedOrganization = "adatum.onmicrosoft.com",
+                Organization = "fabrikam.onmicrosoft.com",
+                Bounds = new[] { 1, 2, 300, 400 },
+            };
+            s.RememberOrganization("fabrikam.onmicrosoft.com");
+            s.RememberOrganization("adatum.onmicrosoft.com");
+
+            var loaded = AppSettings.FromJson(Json.Parse(Json.Serialize(s.ToJson(), true)) as JsonMap);
+            Assert.Equal(CloudEnvironment.GccHigh, loaded.Environment);
+            Assert.Equal("alex@contoso.com", loaded.UserPrincipalName);
+            Assert.Equal("adatum.onmicrosoft.com", loaded.DelegatedOrganization);
+            Assert.Equal("fabrikam.onmicrosoft.com", loaded.Organization);
+            Assert.Equal(new[] { "adatum.onmicrosoft.com", "fabrikam.onmicrosoft.com" }, loaded.RecentOrganizations);
+            Assert.Equal(new[] { 1, 2, 300, 400 }, loaded.Bounds);
+        }
+
+        [Fact]
+        public void SettingsFromEarlierVersionsSeedTheRecentList()
+        {
+            var old = Json.Parse("{\"authMode\":\"Certificate\",\"organization\":\"fabrikam.onmicrosoft.com\"}") as JsonMap;
+            var s = AppSettings.FromJson(old);
+            Assert.Equal(AuthMode.Certificate, s.AuthMode);
+            Assert.Null(s.DelegatedOrganization);
+            Assert.Equal(new[] { "fabrikam.onmicrosoft.com" }, s.RecentOrganizations);
+            Assert.Empty(AppSettings.FromJson(new JsonMap()).RecentOrganizations);
+            Assert.Empty(AppSettings.FromJson(null).RecentOrganizations);
+        }
+    }
+
     [Trait("Category", "Integration")]
     public class CommandLineTests
     {
@@ -712,6 +940,7 @@ namespace SardaCloud.PurviewExplorer.Tests
                 Assert.True(ok, report);
                 Assert.Contains("Import-Module: OK", report);
                 Assert.Contains("DisableWAM", report);
+                Assert.Contains("DelegatedOrganization", report);
             }
             finally
             {

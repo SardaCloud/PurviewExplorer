@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.PowerShell;
@@ -33,8 +34,19 @@ namespace SardaCloud.PurviewExplorer.Data
         public bool DisableWam { get; set; }
         public string AppId { get; set; }
         public string CertificateThumbprint { get; set; }
+
+        /// <summary>The organization to connect to with a certificate (app-only).</summary>
         public string Organization { get; set; }
+
+        /// <summary>
+        /// With an interactive sign-in, another organization to connect to: a customer organization for a partner
+        /// (CSP or GDAP) or an organization where the account is a guest. Empty for the account's own organization.
+        /// </summary>
+        public string DelegatedOrganization { get; set; }
+
         public CloudEnvironment Environment { get; set; }
+
+        public bool IsDelegated => Mode == AuthMode.Interactive && !string.IsNullOrWhiteSpace(DelegatedOrganization);
 
         public static string EnvironmentName(CloudEnvironment e)
         {
@@ -54,22 +66,145 @@ namespace SardaCloud.PurviewExplorer.Data
             {
                 case CloudEnvironment.GccHigh:
                     connectionUri = "https://ps.compliance.protection.office365.us/powershell-liveid/";
-                    authorizationUri = "https://login.microsoftonline.us/organizations";
                     break;
                 case CloudEnvironment.DoD:
                     connectionUri = "https://l5.ps.compliance.protection.office365.us/powershell-liveid/";
-                    authorizationUri = "https://login.microsoftonline.us/organizations";
                     break;
                 case CloudEnvironment.China:
                     connectionUri = "https://ps.compliance.protection.partner.outlook.cn/powershell-liveid";
-                    authorizationUri = "https://login.chinacloudapi.cn/organizations";
                     break;
                 default:
                     connectionUri = null;
-                    authorizationUri = null;
                     break;
             }
+            authorizationUri = connectionUri == null ? null : SignInHost(e) + "/organizations";
         }
+
+        /// <summary>The Microsoft Entra sign-in address of an environment, without the tenant.</summary>
+        public static string SignInHost(CloudEnvironment e)
+        {
+            switch (e)
+            {
+                case CloudEnvironment.GccHigh:
+                case CloudEnvironment.DoD:
+                    return "https://login.microsoftonline.us";
+                case CloudEnvironment.China:
+                    return "https://login.chinacloudapi.cn";
+                default:
+                    return "https://login.microsoftonline.com";
+            }
+        }
+
+        /// <summary>True for a domain name such as contoso.onmicrosoft.com (what Organization and DelegatedOrganization expect).</summary>
+        public static bool IsOrganizationName(string value) =>
+            !string.IsNullOrWhiteSpace(value) &&
+            Regex.IsMatch(value.Trim(), @"\A(?=.{4,253}\z)(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,63}\z");
+
+        /// <summary>
+        /// Checks what the Connect dialog collected. Returns null when the options can be used; otherwise a message,
+        /// with <paramref name="field"/> set to the name of the property to correct.
+        /// </summary>
+        public string Validate(out string field)
+        {
+            field = null;
+            if (Mode == AuthMode.Interactive)
+            {
+                if (!string.IsNullOrWhiteSpace(UserPrincipalName) && !UserPrincipalName.Contains("@"))
+                {
+                    field = nameof(UserPrincipalName);
+                    return "Enter a user principal name such as admin@contoso.onmicrosoft.com, or leave it empty.";
+                }
+                if (!string.IsNullOrWhiteSpace(DelegatedOrganization) && !IsOrganizationName(DelegatedOrganization))
+                {
+                    field = nameof(DelegatedOrganization);
+                    return "Enter the other organization's .onmicrosoft.com domain, for example adatum.onmicrosoft.com, " +
+                           "or leave it empty to connect to your own organization.";
+                }
+                return null;
+            }
+            if (!Guid.TryParse(AppId, out _))
+            {
+                field = nameof(AppId);
+                return "Enter the application (client) ID of the app registration, a GUID.";
+            }
+            if (CertificateThumbprint == null || !Regex.IsMatch(CertificateThumbprint, "^[0-9A-F]{40}$"))
+            {
+                field = nameof(CertificateThumbprint);
+                return "Enter the 40-character hexadecimal thumbprint of a certificate in your personal (CurrentUser\\My) or computer (LocalMachine\\My) store.";
+            }
+            if (!IsOrganizationName(Organization))
+            {
+                field = nameof(Organization);
+                return "Enter the organization's initial domain, for example contoso.onmicrosoft.com.";
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// The Connect-IPPSSession parameters for these options, in order. <paramref name="supported"/> tells whether
+        /// the installed module has an optional parameter (ShowBanner, CommandName, DisableWAM).
+        /// </summary>
+        internal static List<KeyValuePair<string, object>> ConnectParameters(ConnectOptions o, string[] commandNames, bool disableWam, Func<string, bool> supported)
+        {
+            var list = new List<KeyValuePair<string, object>>();
+            void Add(string name, object value) => list.Add(new KeyValuePair<string, object>(name, value));
+
+            if (supported("ShowBanner")) Add("ShowBanner", false);
+            if (commandNames != null && commandNames.Length > 0 && supported("CommandName")) Add("CommandName", commandNames);
+            Endpoints(o.Environment, out var connectionUri, out var authorizationUri);
+            if (connectionUri != null) Add("ConnectionUri", connectionUri);
+            if (o.IsDelegated)
+            {
+                // Partner and guest access: sign in at the other organization and map the session to it.
+                var organization = o.DelegatedOrganization.Trim();
+                Add("AzureADAuthorizationEndpointUri", SignInHost(o.Environment) + "/" + organization);
+                Add("DelegatedOrganization", organization);
+            }
+            else if (authorizationUri != null)
+            {
+                Add("AzureADAuthorizationEndpointUri", authorizationUri);
+            }
+            if (o.Mode == AuthMode.Certificate)
+            {
+                Add("AppId", o.AppId);
+                Add("CertificateThumbprint", o.CertificateThumbprint);
+                Add("Organization", o.Organization);
+            }
+            else
+            {
+                if (!string.IsNullOrWhiteSpace(o.UserPrincipalName)) Add("UserPrincipalName", o.UserPrincipalName.Trim());
+                if (disableWam && supported("DisableWAM")) Add("DisableWAM", true);
+            }
+            Add("ErrorAction", "Stop");
+            return list;
+        }
+
+        /// <summary>
+        /// The organization, account and tenant ID of a connection, from Get-ConnectionInformation (may be null)
+        /// with the options as fallback. With partner or guest access the organization is the other organization.
+        /// </summary>
+        internal static (string Organization, string Account, string TenantId) ResolveIdentity(JsonMap info, ConnectOptions options)
+        {
+            string Value(string name) => info == null ? null : NullIfEmpty(ValueFormatter.ToFlatText(info[name]));
+            string organization = Value("DelegatedOrganization") ?? Value("Organization");
+            string account = Value("UserPrincipalName");
+            string tenantId = Value("TenantID");
+            if (options.Mode == AuthMode.Certificate)
+            {
+                organization = organization ?? NullIfEmpty(options.Organization);
+                account = account ?? "App " + options.AppId;
+            }
+            else
+            {
+                if (options.IsDelegated) organization = organization ?? options.DelegatedOrganization.Trim();
+                account = account ?? NullIfEmpty(options.UserPrincipalName);
+            }
+            if (organization == null && account != null && account.Contains("@"))
+                organization = account.Substring(account.IndexOf('@') + 1);
+            return (organization, account, tenantId);
+        }
+
+        private static string NullIfEmpty(string s) => string.IsNullOrWhiteSpace(s) ? null : s.Trim();
     }
 
     public sealed class InvokeResult
@@ -294,7 +429,7 @@ namespace SardaCloud.PurviewExplorer.Data
                 }
                 report.AppendLine($"Import-Module: OK ({sw.Elapsed.TotalSeconds:0.0} s)");
                 report.AppendLine("Connect-IPPSSession parameters: " + string.Join(", ", session._connectParameters.Where(p =>
-                    p == "UserPrincipalName" || p == "DisableWAM" || p == "AccessToken" || p == "CertificateThumbprint" || p == "CommandName").OrderBy(p => p)));
+                    p == "UserPrincipalName" || p == "DisableWAM" || p == "AccessToken" || p == "CertificateThumbprint" || p == "CommandName" || p == "DelegatedOrganization").OrderBy(p => p)));
                 ok = true;
                 report.AppendLine();
                 report.AppendLine("Everything needed to connect is in place.");
@@ -351,36 +486,13 @@ namespace SardaCloud.PurviewExplorer.Data
 
         private InvokeResult RunConnect(ConnectOptions o, string[] commandNames, bool disableWam)
         {
+            var parameters = ConnectOptions.ConnectParameters(o, commandNames, disableWam,
+                name => _connectParameters.Count == 0 || _connectParameters.Contains(name));
             return Run(ps =>
             {
                 ps.AddCommand("Connect-IPPSSession");
-                AddIfSupported(ps, "ShowBanner", false);
-                if (commandNames.Length > 0) AddIfSupported(ps, "CommandName", commandNames);
-                ConnectOptions.Endpoints(o.Environment, out var connectionUri, out var authorizationUri);
-                if (connectionUri != null)
-                {
-                    ps.AddParameter("ConnectionUri", connectionUri);
-                    ps.AddParameter("AzureADAuthorizationEndpointUri", authorizationUri);
-                }
-                if (o.Mode == AuthMode.Certificate)
-                {
-                    ps.AddParameter("AppId", o.AppId);
-                    ps.AddParameter("CertificateThumbprint", o.CertificateThumbprint);
-                    ps.AddParameter("Organization", o.Organization);
-                }
-                else
-                {
-                    if (!string.IsNullOrWhiteSpace(o.UserPrincipalName)) ps.AddParameter("UserPrincipalName", o.UserPrincipalName.Trim());
-                    if (disableWam) AddIfSupported(ps, "DisableWAM", true);
-                }
-                ps.AddParameter("ErrorAction", "Stop");
+                foreach (var p in parameters) ps.AddParameter(p.Key, p.Value);
             }, convert: false);
-        }
-
-        private void AddIfSupported(PowerShell ps, string name, object value)
-        {
-            if (_connectParameters.Count == 0 || _connectParameters.Contains(name))
-                ps.AddParameter(name, value);
         }
 
         private static bool LooksLikeWamFailure(string message)
@@ -396,26 +508,11 @@ namespace SardaCloud.PurviewExplorer.Data
             var info = Run(ps => ps.AddCommand("Get-ConnectionInformation").AddParameter("ErrorAction", "SilentlyContinue"), convert: true);
             var current = info.Items.LastOrDefault(i => string.Equals(ValueFormatter.ToFlatText(i["State"]), "Connected", StringComparison.OrdinalIgnoreCase))
                           ?? info.Items.LastOrDefault();
-            if (current != null)
-            {
-                Organization = NullIfEmpty(ValueFormatter.ToFlatText(current["Organization"]));
-                Account = NullIfEmpty(ValueFormatter.ToFlatText(current["UserPrincipalName"]));
-                TenantId = NullIfEmpty(ValueFormatter.ToFlatText(current["TenantID"]));
-            }
-            if (options.Mode == AuthMode.Certificate)
-            {
-                Organization = Organization ?? options.Organization;
-                Account = Account ?? "App " + options.AppId;
-            }
-            else
-            {
-                Account = Account ?? NullIfEmpty(options.UserPrincipalName);
-            }
-            if (Organization == null && Account != null && Account.Contains("@"))
-                Organization = Account.Substring(Account.IndexOf('@') + 1);
+            var identity = ConnectOptions.ResolveIdentity(current, options);
+            Organization = identity.Organization;
+            Account = identity.Account;
+            TenantId = identity.TenantId;
         }
-
-        private static string NullIfEmpty(string s) => string.IsNullOrWhiteSpace(s) ? null : s.Trim();
 
         public async Task<bool?> CommandExistsAsync(string name)
         {

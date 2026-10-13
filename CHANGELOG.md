@@ -7,6 +7,27 @@ All notable changes to Purview Explorer (called Purview Configuration Viewer in 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-10-13
+
+### Added
+
+- **Other organizations.** An account with access to several organizations can connect to any of them: a partner
+  managing customer organizations (CSP or GDAP) or a guest with a Purview role in another organization. In
+  *File > Connect to Tenant*, *Interactive sign-in* has a new optional **Other organization** box for the other
+  organization's `*.onmicrosoft.com` domain. Purview Explorer then signs in at that organization and maps the
+  session to it (`Connect-IPPSSession -DelegatedOrganization` with the organization's own sign-in address, in every
+  supported cloud), as Microsoft documents for customer organizations.
+- **Recent organizations.** The last ten other organizations and certificate organizations connected to are
+  offered in both organization boxes (interactive and certificate). Settings from earlier versions start the list
+  with the certificate organization.
+- The prerequisite report lists whether the installed module supports `DelegatedOrganization`.
+
+### Changed
+
+- When connected to another organization, the title bar, status bar, Summary tab, snapshot file name and
+  snapshot `source.organization` name that organization instead of the domain of the account that signed in.
+- The certificate *Organization* box checks for a domain name such as `contoso.onmicrosoft.com`.
+
 ## [0.3.0] - 2026-10-12
 
 ### Added
@@ -75,6 +96,7 @@ application, read-only.
 - `/SelfTest`, which drives the whole UI with the demo data, and xUnit tests including hosted-runspace
   integration tests.
 
+[0.4.0]: https://github.com/SardaCloud/PurviewExplorer/releases/tag/v0.4.0
 [0.3.0]: https://github.com/SardaCloud/PurviewExplorer/releases/tag/v0.3.0
 [0.2.0]: https://github.com/SardaCloud/PurviewExplorer/releases/tag/v0.2.0
 [0.1.0]: https://github.com/SardaCloud/PurviewExplorer/releases/tag/v0.1.0

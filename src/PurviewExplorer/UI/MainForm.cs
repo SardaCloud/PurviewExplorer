@@ -337,6 +337,8 @@ namespace SardaCloud.PurviewExplorer.UI
                 if (!_closeRequested) Ui.ShowError(this, "Couldn't connect to Security & Compliance PowerShell.\r\n\r\n" + PsConverter.FormatException(ex));
                 return;
             }
+            _settings.RememberOrganization(options.Mode == AuthMode.Certificate ? options.Organization : options.DelegatedOrganization);
+            _settings.Save();
             if (_closeRequested) return;
             if (_tabs.SelectedIndex == 0 && _views.Count > 0) _tabs.SelectedIndex = 1;
             else CurrentView?.Activate();

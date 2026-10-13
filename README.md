@@ -68,6 +68,8 @@ refuses to run any cmdlet that doesn't start with `Get-`.
 - **Demo data** (File > Open Demo Data): a fictional *Contoso* tenant for trying the application.
 - Sign-in with **Web Account Manager**, a **browser window**, or **certificate-based app-only** authentication;
   Commercial/GCC, GCC High, DoD and 21Vianet environments.
+- **Many organizations, one account**: partners (CSP or GDAP) and guests connect to another organization by
+  entering its domain; the organizations you used are remembered. See [Other organizations](#other-organizations-partners-and-guests).
 
 | Summary | Properties dialog | Connect |
 |---|---|---|
@@ -141,13 +143,15 @@ check and the result of the installation check.
   The module is found whether it was installed for Windows PowerShell or PowerShell 7. *Help > Check
   Prerequisites* verifies that it loads, without signing in. Its report replaces your own folders (which contain
   your user name) with placeholders such as `<Documents>`, so you can paste it into an issue.
-- An account with permission to read the Purview configuration, for example a member of the *Compliance
-  Administrator* or *Organization Management* role group. Some collections need specific roles (eDiscovery,
+- An account with permission to read the Purview configuration of the organization you connect to, for example a
+  member of the *Compliance Administrator* or *Organization Management* role group (or, for a partner, a GDAP
+  relationship with a role that includes it). Some collections need specific roles (eDiscovery,
   Insider Risk Management, Communication Compliance); without them those collections show as *not available*.
 
 ## Usage
 
-1. **File > Connect to Tenant**, choose the environment and the sign-in method, and sign in.
+1. **File > Connect to Tenant**, choose the environment and the sign-in method, and sign in. To connect to an
+   organization other than your account's own, enter it under *Other organization*.
 2. Pick a tab. Its collections load in the background; select a collection to see its items.
 3. Select an item to see its properties, or double-click it for the full property sheet.
 4. **File > Save Snapshot** to keep a copy you can open later with **File > Open Snapshot**.
@@ -181,10 +185,39 @@ PurviewExplorer.exe /SelfTest:log.txt                drive the UI with the demo 
 - **Certificate (app-only)**: application ID, certificate thumbprint (CurrentUser\My or LocalMachine\My) and the
   organization's `*.onmicrosoft.com` domain. See
   [App-only authentication for unattended scripts](https://aka.ms/exo-cba) for setting up the app registration
-  and assigning it a Purview role.
+  and assigning it a Purview role. A multi-tenant app registration, consented in each organization, reaches
+  several organizations with the same certificate: change the organization.
 
-Settings (last environment, account, app ID, thumbprint, window position) are saved in
-`%APPDATA%\SardaCloud\PurviewExplorer\settings.json`. No passwords, tokens or keys are stored.
+### Other organizations (partners and guests)
+
+An account can have access to the Purview configuration of organizations other than its own:
+
+- a **partner** account (`alex@contoso.com`) managing **customer organizations** through the Cloud Solution
+  Provider program or granular delegated admin privileges (GDAP);
+- a **guest** account invited into another organization and given a Purview role there.
+
+Choose *Interactive sign-in*, enter the account and, under **Other organization**, the other organization's
+`*.onmicrosoft.com` domain (for example `adatum.onmicrosoft.com`). Purview Explorer signs in at that organization
+and maps the session to it, which is what Microsoft documents for
+[connecting to customer organizations](https://learn.microsoft.com/powershell/exchange/connect-to-scc-powershell#connect-to-security--compliance-powershell-in-customer-organizations):
+
+```powershell
+Connect-IPPSSession -UserPrincipalName alex@contoso.com -DelegatedOrganization adatum.onmicrosoft.com `
+    -AzureADAuthorizationEndpointUri https://login.microsoftonline.com/adatum.onmicrosoft.com
+```
+
+In GCC High and DoD the sign-in address is `login.microsoftonline.us`, in 21Vianet `login.chinacloudapi.cn`.
+Leave *Other organization* empty for the account's own organization.
+
+The title bar, the status bar, the Summary tab and saved snapshots name the organization you connected to; the
+account shows who signed in. Each other organization, and each certificate organization, you connect to
+successfully is added to a list of the ten most recent ones, offered in both organization boxes. Connecting again
+first disconnects the current session, so only one organization is connected at a time; to compare organizations,
+save a snapshot of each.
+
+Settings (last environment, account, other organization, app ID, thumbprint, recent organizations, window
+position) are saved in `%APPDATA%\SardaCloud\PurviewExplorer\settings.json`. No passwords, tokens or keys are
+stored.
 
 ## What is retrieved
 
