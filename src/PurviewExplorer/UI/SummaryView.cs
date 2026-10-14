@@ -40,7 +40,7 @@ namespace SardaCloud.PurviewExplorer.UI
             table.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
             table.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             table.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
-            var fields = new[] { "Source", "Organization", "Account", "Tenant ID", "Environment", "Taken", "File", "Module", "Session" };
+            var fields = new[] { "Source", "Organization", "Account", "Tenant ID", "Environment", "Taken", "Session", "Module", "File" };
             for (int i = 0; i < fields.Length; i++)
             {
                 var label = new Label { Text = fields[i] + ":", AutoSize = true, Margin = new Padding(0, Ui.S(3), Ui.S(8), Ui.S(3)) };
@@ -49,6 +49,9 @@ namespace SardaCloud.PurviewExplorer.UI
                 table.Controls.Add(label, (i % 2) * 2, i / 2);
                 table.Controls.Add(value, (i % 2) * 2 + 1, i / 2);
             }
+            // The file path is the longest value: it gets the rest of the last row.
+            table.SetColumnSpan(_values["File"], 3);
+            table.SizeChanged += (s, e) => FitValues(table);
             sourceGroup.Controls.Add(table);
 
             _list = new ListViewEx { Dock = DockStyle.Fill, MultiSelect = false, ShowGroups = true };
@@ -145,6 +148,28 @@ namespace SardaCloud.PurviewExplorer.UI
         }
 
         private void Set(string field, string value) => _values[field].Text = string.IsNullOrEmpty(value) ? "\u2014" : value;
+
+        /// <summary>
+        /// Limits each value to the width of its column(s). Without a maximum width the table measures every value on
+        /// one line, so the group box gets too short when a long value (such as the file path) wraps, and the rows
+        /// below it are cut off.
+        /// </summary>
+        private void FitValues(TableLayoutPanel table)
+        {
+            int LabelColumn(int column) => table.Controls.Cast<Control>()
+                .Where(c => table.GetColumn(c) == column && !_values.ContainsValue(c as Label))
+                .Select(c => c.PreferredSize.Width + c.Margin.Horizontal)
+                .DefaultIfEmpty(0).Max();
+
+            int labels0 = LabelColumn(0), labels2 = LabelColumn(2);
+            int half = Math.Max(0, table.ClientSize.Width - table.Padding.Horizontal - labels0 - labels2) / 2;
+            foreach (var value in _values.Values)
+            {
+                int width = table.GetColumnSpan(value) >= 3 ? half + labels2 + half : half;
+                var max = new Size(Math.Max(Ui.S(60), width - value.Margin.Horizontal), 0);
+                if (value.MaximumSize != max) value.MaximumSize = max;
+            }
+        }
 
         private void UpdateRow(string key)
         {

@@ -7,6 +7,14 @@ All notable changes to Purview Explorer (called Purview Configuration Viewer in 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] - 2026-10-14
+
+### Fixed
+
+- Summary tab: when a value wrapped onto more lines (typically a long snapshot file path), the Source box didn't
+  grow, and the rows below it, such as the new *Session* row, were cut off. The box now fits the wrapped text, and
+  the file path is on the last row, where it has the whole width.
+
 ## [0.5.0] - 2026-10-14
 
 ### Added
@@ -128,6 +136,7 @@ application, read-only.
 - `/SelfTest`, which drives the whole UI with the demo data, and xUnit tests including hosted-runspace
   integration tests.
 
+[0.5.1]: https://github.com/SardaCloud/PurviewExplorer/releases/tag/v0.5.1
 [0.5.0]: https://github.com/SardaCloud/PurviewExplorer/releases/tag/v0.5.0
 [0.4.0]: https://github.com/SardaCloud/PurviewExplorer/releases/tag/v0.4.0
 [0.3.0]: https://github.com/SardaCloud/PurviewExplorer/releases/tag/v0.3.0
