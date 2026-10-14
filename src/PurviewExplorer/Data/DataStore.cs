@@ -60,6 +60,13 @@ namespace SardaCloud.PurviewExplorer.Data
         public string TenantId { get; set; }
         public string Environment { get; set; }
         public string ModuleVersion { get; set; }
+
+        /// <summary>
+        /// True for a search-only session (the workaround for guest accounts), false for a standard session,
+        /// null when unknown (demo data, snapshots from before 0.5.0).
+        /// </summary>
+        public bool? SearchOnlySession { get; set; }
+
         public DateTime? CreatedUtc { get; set; }
         public string FilePath { get; set; }
         public string Application { get; set; }

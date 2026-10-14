@@ -200,6 +200,19 @@ namespace SardaCloud.PurviewExplorer.Tests
         }
 
         [Fact]
+        public void SessionTypeIsSavedAndRead()
+        {
+            string Saved(bool? searchOnly) => Snapshot.Serialize(new DataStore(new SourceInfo { Kind = SourceKind.Live, Organization = "adatum.onmicrosoft.com", SearchOnlySession = searchOnly }));
+
+            Assert.Contains("\"sessionType\": \"SearchOnly\"", Saved(true));
+            Assert.Contains("\"sessionType\": \"Standard\"", Saved(false));
+            Assert.True(Snapshot.Parse(Saved(true), SourceKind.Snapshot).Source.SearchOnlySession);
+            Assert.False(Snapshot.Parse(Saved(false), SourceKind.Snapshot).Source.SearchOnlySession);
+            Assert.Null(Snapshot.Parse(Saved(null), SourceKind.Snapshot).Source.SearchOnlySession);
+            Assert.Null(Snapshot.LoadDemo().Source.SearchOnlySession);
+        }
+
+        [Fact]
         public void RejectsForeignOrNewerFiles()
         {
             Assert.Throws<InvalidDataException>(() => Snapshot.Parse("{\"hello\":1}", SourceKind.Snapshot));
@@ -617,6 +630,23 @@ namespace SardaCloud.PurviewExplorer.Tests
                 ws.Enqueue(new[] { "Permissions.RoleGroups" }, force: true);
                 await ws.WhenIdleAsync();
                 Assert.Equal(LoadState.Unavailable, ws.Store.Get("Permissions.RoleGroups").State);
+                Assert.DoesNotContain("search-only", ws.Store.Get("Permissions.RoleGroups").Message);
+            });
+        }
+
+        [Fact]
+        public void UnavailableInASearchOnlySessionSaysSo()
+        {
+            Run(async () =>
+            {
+                var ws = new Workspace();
+                ws.AttachSession(new FakeSession { CommandProbe = false }, new SourceInfo { Kind = SourceKind.Live, Connected = true, SearchOnlySession = true });
+                ws.Enqueue(new[] { "eDiscovery.Searches" });
+                await ws.WhenIdleAsync();
+                var r = ws.Store.Get("eDiscovery.Searches");
+                Assert.Equal(LoadState.Unavailable, r.State);
+                Assert.Contains("search-only session", r.Message);
+                Assert.Contains("Get-ComplianceSearch", r.Message);
             });
         }
     }
@@ -643,8 +673,8 @@ namespace SardaCloud.PurviewExplorer.Tests
     {
         private static readonly string[] Commands = { "Get-Label", "Get-DlpCompliancePolicy" };
 
-        private static List<KeyValuePair<string, object>> Parameters(ConnectOptions o, bool disableWam = false, Func<string, bool> supported = null) =>
-            ConnectOptions.ConnectParameters(o, Commands, disableWam, supported ?? (_ => true));
+        private static List<KeyValuePair<string, object>> Parameters(ConnectOptions o, bool disableWam = false, Func<string, bool> supported = null, bool searchOnly = false) =>
+            ConnectOptions.ConnectParameters(o, Commands, disableWam, supported ?? (_ => true), searchOnly);
 
         private static object Value(List<KeyValuePair<string, object>> list, string name) =>
             list.Where(p => p.Key == name).Select(p => p.Value).SingleOrDefault();
@@ -715,6 +745,44 @@ namespace SardaCloud.PurviewExplorer.Tests
             var p = Parameters(o, disableWam: true, supported: name => name != "DisableWAM" && name != "ShowBanner");
             Assert.Equal(new[] { "CommandName", "AzureADAuthorizationEndpointUri", "DelegatedOrganization", "ErrorAction" }, p.Select(x => x.Key));
             Assert.True((bool)Value(Parameters(o, disableWam: true), "DisableWAM"));
+        }
+
+        [Fact]
+        public void SearchOnlySessionIsRequestedOnlyForOtherOrganizations()
+        {
+            var guest = new ConnectOptions { UserPrincipalName = "alex@contoso.com", DelegatedOrganization = "adatum.onmicrosoft.com" };
+            var p = Parameters(guest, disableWam: true, searchOnly: true);
+            Assert.Equal(new[] { "ShowBanner", "CommandName", "AzureADAuthorizationEndpointUri", "DelegatedOrganization", "UserPrincipalName", "DisableWAM", "EnableSearchOnlySession", "ErrorAction" },
+                p.Select(x => x.Key));
+            Assert.True((bool)Value(p, "EnableSearchOnlySession"));
+
+            Assert.Null(Value(Parameters(guest), "EnableSearchOnlySession"));
+            Assert.Null(Value(Parameters(guest, searchOnly: true, supported: name => name != "EnableSearchOnlySession"), "EnableSearchOnlySession"));
+            Assert.Null(Value(Parameters(new ConnectOptions { UserPrincipalName = "admin@contoso.com" }, searchOnly: true), "EnableSearchOnlySession"));
+            var cert = new ConnectOptions { Mode = AuthMode.Certificate, AppId = Guid.NewGuid().ToString(), CertificateThumbprint = new string('A', 40), Organization = "fabrikam.onmicrosoft.com" };
+            Assert.Null(Value(Parameters(cert, searchOnly: true), "EnableSearchOnlySession"));
+        }
+
+        [Fact]
+        public void TargetOrganizationIsTheDomainTheOptionsName()
+        {
+            Assert.Equal("adatum.onmicrosoft.com", new ConnectOptions { DelegatedOrganization = " adatum.onmicrosoft.com " }.TargetOrganization);
+            Assert.Equal("fabrikam.onmicrosoft.com", new ConnectOptions { Mode = AuthMode.Certificate, Organization = "fabrikam.onmicrosoft.com", DelegatedOrganization = "adatum.onmicrosoft.com" }.TargetOrganization);
+            Assert.Null(new ConnectOptions { UserPrincipalName = "admin@contoso.com" }.TargetOrganization);
+            Assert.Null(new ConnectOptions { Mode = AuthMode.Certificate }.TargetOrganization);
+        }
+
+        [Fact]
+        public void TenantCheckRefusesASessionOfAnotherTenant()
+        {
+            const string adatum = "7AC9C85C-6F6C-4CE6-8CC4-7F6FE24083E4";
+            Assert.Null(ConnectOptions.CheckTenant(adatum, adatum.ToLowerInvariant(), "adatum.onmicrosoft.com"));
+            Assert.Null(ConnectOptions.CheckTenant(null, adatum, "adatum.onmicrosoft.com"));
+            Assert.Null(ConnectOptions.CheckTenant(adatum, null, "adatum.onmicrosoft.com"));
+            var message = ConnectOptions.CheckTenant(adatum, "11111111-2222-3333-4444-555555555555", "adatum.onmicrosoft.com");
+            Assert.Contains("11111111-2222-3333-4444-555555555555", message);
+            Assert.Contains("adatum.onmicrosoft.com is tenant " + adatum, message);
+            Assert.Contains("disconnected", message);
         }
 
         [Theory]
@@ -811,8 +879,163 @@ namespace SardaCloud.PurviewExplorer.Tests
         }
     }
 
+    public class ConnectionErrorsTests
+    {
+        private static readonly ConnectOptions Guest = new ConnectOptions { UserPrincipalName = "alex@contoso.com", DelegatedOrganization = "adatum.onmicrosoft.com" };
+        private static readonly ConnectOptions Own = new ConnectOptions { UserPrincipalName = "admin@contoso.com" };
+
+        // Messages as ExchangeOnlineManagement 3.10.1 reports them.
+        [Theory]
+        [InlineData("Object reference not set to an instance of an object.", ConnectFailure.ServiceSetupFailed)]
+        [InlineData("UnAuthorized", ConnectFailure.Unauthorized)]
+        [InlineData("No cmdlet assigned to the user have this feature enabled.", ConnectFailure.NoRole)]
+        [InlineData("Unexpected character encountered while parsing value: <. Path '', line 0, position 0.", ConnectFailure.UnknownOrganization)]
+        [InlineData("User canceled authentication.", ConnectFailure.Cancelled)]
+        [InlineData("A window handle must be configured. See https://aka.ms/msal-net-wam#parent-window-handles", ConnectFailure.WebAccountManager)]
+        [InlineData("", ConnectFailure.Other)]
+        [InlineData(null, ConnectFailure.Other)]
+        public void ClassifiesModuleMessages(string message, ConnectFailure expected)
+        {
+            Assert.Equal(expected, ConnectionErrors.Classify(message));
+        }
+
+        [Fact]
+        public void GuestServiceFailureNamesTheOrganizationAndKeepsTheModuleText()
+        {
+            const string raw = "Object reference not set to an instance of an object.";
+            var text = ConnectionErrors.Describe(raw, Guest);
+            Assert.Contains("adatum.onmicrosoft.com", text);
+            Assert.Contains("guest accounts", text);
+            Assert.EndsWith("What the module reported:\r\n    " + raw, text);
+
+            var withFallback = ConnectionErrors.Describe(raw, Guest, searchOnlyError: "The search-only session timed out.");
+            Assert.Contains("search-only", withFallback);
+            Assert.Contains("The search-only session timed out.", withFallback);
+
+            var oldModule = ConnectionErrors.Describe(raw, Guest, searchOnlySupported: false);
+            Assert.Contains("3.9.0", oldModule);
+            Assert.Contains("Update-Module ExchangeOnlineManagement", oldModule);
+
+            Assert.DoesNotContain("guest", ConnectionErrors.Describe(raw, Own));
+        }
+
+        [Fact]
+        public void ExplainsRolesAccessAndUnknownOrganizations()
+        {
+            var noRole = ConnectionErrors.Describe("No cmdlet assigned to the user have this feature enabled.", Guest);
+            Assert.Contains("no Microsoft Purview role in adatum.onmicrosoft.com", noRole);
+            Assert.Contains("Privileged Identity Management", noRole);
+            Assert.Contains("in your organization", ConnectionErrors.Describe("No cmdlet assigned to the user have this feature enabled.", Own));
+
+            var denied = ConnectionErrors.Describe("UnAuthorized", Guest);
+            Assert.Contains("adatum.onmicrosoft.com", denied);
+            Assert.Contains("GDAP", denied);
+            Assert.DoesNotContain("GDAP", ConnectionErrors.Describe("UnAuthorized", Own));
+
+            Assert.Contains("primary .onmicrosoft.com domain", ConnectionErrors.Describe("Unexpected character encountered while parsing value: <. Path '', line 0, position 0.", Guest));
+        }
+
+        [Fact]
+        public void WebAccountManagerFailureAsksForARestartWithTheBrowser()
+        {
+            const string raw = "A window handle must be configured. See https://aka.ms/msal-net-wam#parent-window-handles";
+            var text = ConnectionErrors.Describe(raw, Own);
+            Assert.Contains("Close Purview Explorer, open it again", text);
+            Assert.Contains("Sign in with a browser window instead of Web Account Manager", text);
+            Assert.EndsWith("What the module reported:\r\n    " + raw, text);
+        }
+
+        [Fact]
+        public void CancelledAndUnknownErrors()
+        {
+            Assert.Equal("The sign-in was cancelled.", ConnectionErrors.Describe("User canceled authentication.", Guest));
+            Assert.Equal("The connection was cancelled.", ConnectionErrors.Describe(null, Guest));
+            Assert.Equal("Something new went wrong.", ConnectionErrors.Describe("Something new went wrong.", Guest));
+            var both = ConnectionErrors.Describe("Something new went wrong.", Guest, searchOnlyError: "And this too.");
+            Assert.StartsWith("Something new went wrong.", both);
+            Assert.Contains("A search-only session also failed:\r\n    And this too.", both);
+        }
+    }
+
+    public class TenantLookupTests
+    {
+        [Theory]
+        [InlineData(CloudEnvironment.Commercial, "https://login.microsoftonline.com/adatum.onmicrosoft.com/v2.0/.well-known/openid-configuration")]
+        [InlineData(CloudEnvironment.GccHigh, "https://login.microsoftonline.us/adatum.onmicrosoft.com/v2.0/.well-known/openid-configuration")]
+        [InlineData(CloudEnvironment.China, "https://login.chinacloudapi.cn/adatum.onmicrosoft.com/v2.0/.well-known/openid-configuration")]
+        public void AsksTheEnvironmentsSignInService(CloudEnvironment environment, string expected)
+        {
+            Assert.Equal(expected, TenantLookup.MetadataUrl(environment, " adatum.onmicrosoft.com "));
+        }
+
+        [Fact]
+        public void ReadsTheTenantIdFromTheMetadata()
+        {
+            const string body = "{\"token_endpoint\":\"https://login.microsoftonline.com/7AC9C85C-6F6C-4CE6-8CC4-7F6FE24083E4/oauth2/v2.0/token\"," +
+                                "\"issuer\":\"https://login.microsoftonline.com/7ac9c85c-6f6c-4ce6-8cc4-7f6fe24083e4/v2.0\",\"cloud_instance_name\":\"microsoftonline.com\"}";
+            var r = TenantLookup.Interpret(200, body);
+            Assert.Equal(TenantLookupStatus.Found, r.Status);
+            Assert.Equal("7ac9c85c-6f6c-4ce6-8cc4-7f6fe24083e4", r.TenantId);
+        }
+
+        [Fact]
+        public void RecognizesAnUnknownOrganization()
+        {
+            const string body = "{\"error\":\"invalid_tenant\",\"error_description\":\"AADSTS90002: Tenant 'nobody.onmicrosoft.com' not found.\",\"error_codes\":[90002]}";
+            Assert.Equal(TenantLookupStatus.NotFound, TenantLookup.Interpret(400, body).Status);
+            Assert.Equal(TenantLookupStatus.NotFound, TenantLookup.Interpret(400, "{\"error_codes\":[90002]}").Status);
+        }
+
+        [Fact]
+        public void AnythingElseIsUnknownSoTheConnectionGoesAhead()
+        {
+            var r = TenantLookup.Interpret(500, "<html>busy</html>");
+            Assert.Equal(TenantLookupStatus.Unknown, r.Status);
+            Assert.Equal("HTTP 500", r.Message);
+            Assert.Equal(TenantLookupStatus.Unknown, TenantLookup.Interpret(200, "{\"issuer\":\"x\"}").Status);
+            Assert.Equal(TenantLookupStatus.Unknown, TenantLookup.Interpret(200, "{\"token_endpoint\":\"https://login.microsoftonline.com/common/oauth2/v2.0/token\"}").Status);
+            Assert.Contains("AADSTS50000", TenantLookup.Interpret(400, "{\"error\":\"other\",\"error_description\":\"AADSTS50000: Something.\\r\\nTrace ID: 1\"}").Message);
+        }
+    }
+
     public class SettingsTests
     {
+        [Fact]
+        public void SearchOnlyOrganizationsArePreferredForTwoWeeks()
+        {
+            var s = new AppSettings();
+            var when = new DateTime(2026, 10, 14, 8, 0, 0, DateTimeKind.Utc);
+            s.RecordSessionType(" adatum.onmicrosoft.com ", searchOnly: true, when);
+            s.RecordSessionType("", searchOnly: true, when);
+            Assert.Single(s.SearchOnlyOrganizations);
+            Assert.True(s.PrefersSearchOnly("ADATUM.onmicrosoft.com", when.AddDays(13)));
+            Assert.False(s.PrefersSearchOnly("adatum.onmicrosoft.com", when.AddDays(15)));
+            Assert.False(s.PrefersSearchOnly("fabrikam.onmicrosoft.com", when));
+            Assert.False(s.PrefersSearchOnly(null, when));
+
+            s.RecordSessionType("adatum.onmicrosoft.com", searchOnly: false, when.AddDays(1));
+            Assert.False(s.PrefersSearchOnly("adatum.onmicrosoft.com", when.AddDays(1)));
+            Assert.Empty(s.SearchOnlyOrganizations);
+        }
+
+        [Fact]
+        public void SearchOnlyOrganizationsRoundTripAndExpire()
+        {
+            var s = new AppSettings();
+            Assert.Null(s.ToJson()["searchOnlyOrganizations"]);
+            var recent = DateTime.UtcNow.AddDays(-1);
+            s.RecordSessionType("adatum.onmicrosoft.com", true, recent);
+            s.RecordSessionType("tailspin.onmicrosoft.com", true, DateTime.UtcNow.AddDays(-20));
+
+            var loaded = AppSettings.FromJson(Json.Parse(Json.Serialize(s.ToJson(), true)) as JsonMap);
+            Assert.Equal(new[] { "adatum.onmicrosoft.com" }, loaded.SearchOnlyOrganizations.Keys);
+            Assert.True(loaded.PrefersSearchOnly("adatum.onmicrosoft.com", DateTime.UtcNow));
+            Assert.True(Math.Abs((loaded.SearchOnlyOrganizations["adatum.onmicrosoft.com"] - recent).TotalSeconds) < 1);
+
+            var broken = Json.Parse("{\"searchOnlyOrganizations\":{\"adatum.onmicrosoft.com\":\"not a date\",\"fabrikam.onmicrosoft.com\":42}}") as JsonMap;
+            Assert.Empty(AppSettings.FromJson(broken).SearchOnlyOrganizations);
+        }
+
         [Fact]
         public void RecentOrganizationsAreMostRecentFirstWithoutDuplicates()
         {
@@ -941,6 +1164,7 @@ namespace SardaCloud.PurviewExplorer.Tests
                 Assert.Contains("Import-Module: OK", report);
                 Assert.Contains("DisableWAM", report);
                 Assert.Contains("DelegatedOrganization", report);
+                if (ModuleLocator.FindBest().Version >= new Version(3, 9, 0)) Assert.Contains("EnableSearchOnlySession", report);
             }
             finally
             {
@@ -964,6 +1188,33 @@ namespace SardaCloud.PurviewExplorer.Tests
                 PurviewSession.ConnectAsync(options, PurviewCatalog.CmdletNames, new SyncProgress(progress.Add)));
             Assert.False(string.IsNullOrWhiteSpace(ex.Message));
             Assert.Contains("Signing in to Security & Compliance PowerShell...", progress);
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task UnknownOrganizationFailsBeforeSigningIn()
+        {
+            const string nobody = "pe-test-nx-4f9a2c.onmicrosoft.com";
+            if (ModuleLocator.FindBest() == null) return;
+            // Only when the lookup can reach Microsoft Entra ID; otherwise connecting would go on to a sign-in prompt.
+            if (TenantLookup.Resolve(CloudEnvironment.Commercial, nobody).Status != TenantLookupStatus.NotFound) return;
+
+            var options = new ConnectOptions { UserPrincipalName = "alex@contoso.com", DelegatedOrganization = nobody };
+            var progress = new List<string>();
+            var ex = await Assert.ThrowsAsync<PurviewException>(() =>
+                PurviewSession.ConnectAsync(options, PurviewCatalog.CmdletNames, new SyncProgress(progress.Add)));
+            Assert.Contains("No organization has the domain " + nobody, ex.Message);
+            Assert.Contains("Looking up " + nobody + "...", progress);
+            Assert.DoesNotContain("Starting Windows PowerShell...", progress);
+            Assert.DoesNotContain("Signing in to Security & Compliance PowerShell...", progress);
+        }
+
+        [Fact]
+        public void LooksUpAKnownOrganization()
+        {
+            var r = TenantLookup.Resolve(CloudEnvironment.Commercial, "microsoft.onmicrosoft.com");
+            if (r.Status == TenantLookupStatus.Unknown) return; // no internet access here
+            Assert.Equal(TenantLookupStatus.Found, r.Status);
+            Assert.Equal("72f988bf-86f1-41af-91ab-2d7cd011db47", r.TenantId);
         }
 
         private sealed class SyncProgress : IProgress<string>

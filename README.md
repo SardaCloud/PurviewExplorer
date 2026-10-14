@@ -69,7 +69,8 @@ refuses to run any cmdlet that doesn't start with `Get-`.
 - Sign-in with **Web Account Manager**, a **browser window**, or **certificate-based app-only** authentication;
   Commercial/GCC, GCC High, DoD and 21Vianet environments.
 - **Many organizations, one account**: partners (CSP or GDAP) and guests connect to another organization by
-  entering its domain; the organizations you used are remembered. See [Other organizations](#other-organizations-partners-and-guests).
+  entering its domain; the organizations you used are remembered. Guest accounts that Microsoft's service can't
+  give a standard session get a search-only session automatically. See [Other organizations](#other-organizations-partners-and-guests).
 
 | Summary | Properties dialog | Connect |
 |---|---|---|
@@ -180,8 +181,10 @@ PurviewExplorer.exe /SelfTest:log.txt                drive the UI with the demo 
 
 ### Sign-in options
 
-- **Interactive** (default): the module signs in with Web Account Manager (WAM). If WAM isn't usable from the
-  application, it automatically falls back to a browser window; you can also choose the browser directly.
+- **Interactive** (default): the module signs in with Web Account Manager (WAM), or with a browser window if you
+  choose *Sign in with a browser window instead of Web Account Manager*. If WAM reports a problem, Purview
+  Explorer tries the browser window once. If WAM couldn't open its window at all, the module keeps trying WAM until
+  Purview Explorer is closed: open it again and choose the browser window.
 - **Certificate (app-only)**: application ID, certificate thumbprint (CurrentUser\My or LocalMachine\My) and the
   organization's `*.onmicrosoft.com` domain. See
   [App-only authentication for unattended scripts](https://aka.ms/exo-cba) for setting up the app registration
@@ -209,15 +212,54 @@ Connect-IPPSSession -UserPrincipalName alex@contoso.com -DelegatedOrganization a
 In GCC High and DoD the sign-in address is `login.microsoftonline.us`, in 21Vianet `login.chinacloudapi.cn`.
 Leave *Other organization* empty for the account's own organization.
 
+Before signing in, Purview Explorer looks the domain up in Microsoft Entra ID (the public sign-in metadata, no
+account needed), so a misspelled domain fails at once with a clear message. After signing in, it compares the
+session's tenant with the one the domain belongs to; if they differ, it disconnects before reading anything. The
+same checks apply to the certificate organization.
+
+#### Guest accounts and search-only sessions
+
+For some guest accounts, Microsoft's service fails while setting up a standard session and the module reports
+only `Object reference not set to an instance of an object.` Purview Explorer then automatically connects again
+with a **search-only session** (`Connect-IPPSSession -EnableSearchOnlySession`, ExchangeOnlineManagement 3.9.0 or
+later), which avoids the problem:
+
+```powershell
+Connect-IPPSSession -UserPrincipalName alex@contoso.com -DelegatedOrganization adatum.onmicrosoft.com `
+    -AzureADAuthorizationEndpointUri https://login.microsoftonline.com/adatum.onmicrosoft.com -EnableSearchOnlySession
+```
+
+The status bar shows *(search-only session)*, the Summary tab's *Session* field says *Search-only*, and snapshots
+record `"sessionType": "SearchOnly"`. A search-only session reads most of the configuration, but the service may
+not offer some cmdlets in it (with a guest account, for example `Get-PolicyTipConfig`, `Get-ComplianceSearch`,
+`Get-CaseHoldPolicy`, `Get-UnifiedAuditLogRetentionPolicy` and the Communication Compliance cmdlets); those
+collections show as unavailable, and the message mentions the search-only session. Purview Explorer remembers, for
+14 days, the organizations where only a search-only session worked and starts with one the next time; if that
+fails, it tries a standard session.
+
+#### Troubleshooting connections
+
+| Message | What to do |
+|---|---|
+| *No organization has the domain ...* | Check the spelling; enter the organization's primary `*.onmicrosoft.com` domain. |
+| *...doesn't recognize ...* | The service doesn't know that name: use the `*.onmicrosoft.com` domain, not another domain or the tenant ID. |
+| *...didn't accept your account for ...* | The account isn't a guest with a Purview role there, and there is no GDAP relationship that includes one. |
+| *...no Microsoft Purview role in ...* | Ask for a role group such as Compliance Administrator or Global Reader; activate eligible PIM roles first. |
+| *...failed while setting up your permissions in ...* | Even the search-only session failed: try again later, or ask for an account in that organization. A message that names ExchangeOnlineManagement 3.9.0 means the module is too old for the search-only session: `Update-Module ExchangeOnlineManagement`. |
+| *The session belongs to tenant ...* | The account signed in to a different organization than the one entered. Check both and connect again. |
+| *Web Account Manager ... couldn't open* | Close Purview Explorer, open it again and choose the browser window in *Connect to Tenant*. |
+| A collection shows *isn't available in this session* | Your roles don't include the cmdlet, the feature isn't available in the tenant, or (search-only session) the service doesn't offer it there. |
+| *Information Barrier feature was not enabled for the tenant* | Expected for *Application status* when the organization doesn't use Information Barriers. |
+
 The title bar, the status bar, the Summary tab and saved snapshots name the organization you connected to; the
 account shows who signed in. Each other organization, and each certificate organization, you connect to
 successfully is added to a list of the ten most recent ones, offered in both organization boxes. Connecting again
 first disconnects the current session, so only one organization is connected at a time; to compare organizations,
 save a snapshot of each.
 
-Settings (last environment, account, other organization, app ID, thumbprint, recent organizations, window
-position) are saved in `%APPDATA%\SardaCloud\PurviewExplorer\settings.json`. No passwords, tokens or keys are
-stored.
+Settings (last environment, account, other organization, app ID, thumbprint, recent organizations, organizations
+that needed a search-only session, window position) are saved in
+`%APPDATA%\SardaCloud\PurviewExplorer\settings.json`. No passwords, tokens or keys are stored.
 
 ## What is retrieved
 
@@ -285,7 +327,7 @@ application is started from PowerShell 7, PowerShell 7 module folders are remove
   "format": "PurviewExplorer.Snapshot",
   "formatVersion": 1,
   "createdUtc": "2026-10-12T18:00:00Z",
-  "source": { "kind": "Live", "organization": "contoso.onmicrosoft.com", "account": "...", "tenantId": "..." },
+  "source": { "kind": "Live", "organization": "contoso.onmicrosoft.com", "account": "...", "tenantId": "...", "sessionType": "Standard" },
   "collections": {
     "DataLossPrevention.Policies": {
       "command": "Get-DlpCompliancePolicy",
@@ -296,6 +338,9 @@ application is started from PowerShell 7, PowerShell 7 module folders are remove
   }
 }
 ```
+
+`source.sessionType` (since 0.5.0) is `Standard` or `SearchOnly`; it is null or absent for the demo data and older
+snapshots.
 
 A snapshot contains your tenant's configuration (names, addresses, conditions). Store and share it accordingly.
 

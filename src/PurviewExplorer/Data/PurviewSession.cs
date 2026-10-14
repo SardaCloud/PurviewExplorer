@@ -46,7 +46,19 @@ namespace SardaCloud.PurviewExplorer.Data
 
         public CloudEnvironment Environment { get; set; }
 
+        /// <summary>
+        /// Start with a search-only session (Connect-IPPSSession -EnableSearchOnlySession) instead of a standard one, because
+        /// only a search-only session worked for this other organization recently. Used only with <see cref="IsDelegated"/>.
+        /// </summary>
+        public bool PreferSearchOnlySession { get; set; }
+
         public bool IsDelegated => Mode == AuthMode.Interactive && !string.IsNullOrWhiteSpace(DelegatedOrganization);
+
+        /// <summary>The organization's domain when the options name one (another organization, or a certificate's organization); otherwise null.</summary>
+        public string TargetOrganization =>
+            IsDelegated ? DelegatedOrganization.Trim()
+            : Mode == AuthMode.Certificate && !string.IsNullOrWhiteSpace(Organization) ? Organization.Trim()
+            : null;
 
         public static string EnvironmentName(CloudEnvironment e)
         {
@@ -142,9 +154,10 @@ namespace SardaCloud.PurviewExplorer.Data
 
         /// <summary>
         /// The Connect-IPPSSession parameters for these options, in order. <paramref name="supported"/> tells whether
-        /// the installed module has an optional parameter (ShowBanner, CommandName, DisableWAM).
+        /// the installed module has an optional parameter (ShowBanner, CommandName, DisableWAM, EnableSearchOnlySession).
+        /// <paramref name="searchOnly"/> asks for a search-only session, which some guest accounts need.
         /// </summary>
-        internal static List<KeyValuePair<string, object>> ConnectParameters(ConnectOptions o, string[] commandNames, bool disableWam, Func<string, bool> supported)
+        internal static List<KeyValuePair<string, object>> ConnectParameters(ConnectOptions o, string[] commandNames, bool disableWam, Func<string, bool> supported, bool searchOnly = false)
         {
             var list = new List<KeyValuePair<string, object>>();
             void Add(string name, object value) => list.Add(new KeyValuePair<string, object>(name, value));
@@ -174,9 +187,23 @@ namespace SardaCloud.PurviewExplorer.Data
             {
                 if (!string.IsNullOrWhiteSpace(o.UserPrincipalName)) Add("UserPrincipalName", o.UserPrincipalName.Trim());
                 if (disableWam && supported("DisableWAM")) Add("DisableWAM", true);
+                if (searchOnly && o.IsDelegated && supported("EnableSearchOnlySession")) Add("EnableSearchOnlySession", true);
             }
             Add("ErrorAction", "Stop");
             return list;
+        }
+
+        /// <summary>
+        /// Compares the tenant the organization's domain belongs to with the tenant of the session. Returns null when
+        /// they match or either is unknown; otherwise the message to show.
+        /// </summary>
+        internal static string CheckTenant(string expectedTenantId, string sessionTenantId, string organization)
+        {
+            if (string.IsNullOrWhiteSpace(expectedTenantId) || string.IsNullOrWhiteSpace(sessionTenantId)) return null;
+            if (string.Equals(expectedTenantId.Trim(), sessionTenantId.Trim(), StringComparison.OrdinalIgnoreCase)) return null;
+            return $"The session belongs to tenant {sessionTenantId.Trim()}, but {organization} is tenant {expectedTenantId.Trim()}. " +
+                   "Purview Explorer disconnected without reading anything, so nothing from the wrong organization is shown or saved.\r\n\r\n" +
+                   "Check the account and the organization, and connect again.";
         }
 
         /// <summary>
@@ -259,6 +286,12 @@ namespace SardaCloud.PurviewExplorer.Data
         public CloudEnvironment Environment { get; private set; }
         public bool IsConnected { get; private set; }
 
+        /// <summary>
+        /// The session was made with Connect-IPPSSession -EnableSearchOnlySession, because a standard session failed for
+        /// the account (or did recently). Some cmdlets may not be offered in such a session.
+        /// </summary>
+        public bool IsSearchOnlySession { get; private set; }
+
         public static async Task<PurviewSession> ConnectAsync(ConnectOptions options, IEnumerable<string> commandNames, IProgress<string> progress)
         {
             var session = new PurviewSession();
@@ -296,6 +329,22 @@ namespace SardaCloud.PurviewExplorer.Data
                     $"ExchangeOnlineManagement {Module.Version} is too old; version {ModuleLocator.MinimumVersion} or later is required.\r\n\r\n" +
                     "Update it with:\r\n    Update-Module ExchangeOnlineManagement");
 
+            // Before signing in, make sure the organization exists: a typo then fails at once, with a clear message,
+            // and the tenant ID found here is compared with the session's afterwards.
+            string expectedTenantId = null;
+            var organization = options.TargetOrganization;
+            if (organization != null)
+            {
+                progress?.Report($"Looking up {organization}...");
+                var lookup = TenantLookup.Resolve(options.Environment, organization);
+                if (lookup.Status == TenantLookupStatus.NotFound)
+                    throw new PurviewException(
+                        $"No organization has the domain {organization} in {ConnectOptions.EnvironmentName(options.Environment)}. " +
+                        "Check the spelling, and enter the organization's primary .onmicrosoft.com domain (for example adatum.onmicrosoft.com).");
+                if (lookup.Status == TenantLookupStatus.Found) expectedTenantId = lookup.TenantId;
+                else System.Diagnostics.Trace.WriteLine($"Couldn't look up {organization}: {lookup.Message}");
+            }
+
             progress?.Report("Starting Windows PowerShell...");
             OpenRunspace();
 
@@ -305,19 +354,70 @@ namespace SardaCloud.PurviewExplorer.Data
                 throw new PurviewException("Couldn't load the ExchangeOnlineManagement module:\r\n" + importError);
 
             progress?.Report("Signing in to Security & Compliance PowerShell...");
-            var result = RunConnect(options, commandNames, options.DisableWam);
-            if (!result.Succeeded && options.Mode == AuthMode.Interactive && !options.DisableWam && LooksLikeWamFailure(result.TerminatingError))
+            bool disableWam = options.DisableWam;
+            bool canSearchOnly = options.IsDelegated && Supports("EnableSearchOnlySession");
+
+            InvokeResult Attempt(bool searchOnly)
             {
-                progress?.Report("Web Account Manager isn't available here; signing in with the browser instead...");
-                result = RunConnect(options, commandNames, disableWam: true);
+                var r = RunConnect(options, commandNames, disableWam, searchOnly);
+                if (!r.Succeeded && !r.Stopped && options.Mode == AuthMode.Interactive && !disableWam && LooksLikeWamFailure(r.TerminatingError))
+                {
+                    progress?.Report("Web Account Manager isn't available here; signing in with the browser instead...");
+                    disableWam = true;
+                    r = RunConnect(options, commandNames, disableWam, searchOnly);
+                }
+                return r;
+            }
+
+            bool usedSearchOnly = canSearchOnly && options.PreferSearchOnlySession;
+            var result = Attempt(usedSearchOnly);
+            string searchOnlyError = null;
+            var failure = result.Succeeded || result.Stopped ? ConnectFailure.Other : ConnectionErrors.Classify(result.TerminatingError);
+            if (!result.Succeeded && !result.Stopped && failure != ConnectFailure.Cancelled)
+            {
+                if (usedSearchOnly)
+                {
+                    // Only a search-only session worked for this organization recently, but not this time: try a standard one.
+                    searchOnlyError = result.TerminatingError ?? "The connection was cancelled.";
+                    progress?.Report("The search-only session failed; trying a standard session...");
+                    usedSearchOnly = false;
+                    result = Attempt(false);
+                }
+                else if (canSearchOnly && failure == ConnectFailure.ServiceSetupFailed)
+                {
+                    // Some guest accounts get this from the service with a standard session but not with a search-only one.
+                    progress?.Report("The standard session failed for this account; trying a search-only session...");
+                    var retry = Attempt(true);
+                    if (retry.Succeeded)
+                    {
+                        result = retry;
+                        usedSearchOnly = true;
+                    }
+                    else
+                    {
+                        searchOnlyError = retry.TerminatingError ?? "The connection was cancelled.";
+                    }
+                }
             }
             if (!result.Succeeded)
-                throw new PurviewException(result.TerminatingError ?? "The connection was cancelled.");
+                throw new PurviewException(ConnectionErrors.Describe(result.TerminatingError, options, searchOnlyError,
+                    searchOnlySupported: !options.IsDelegated || Supports("EnableSearchOnlySession")));
 
             IsConnected = true;
-            progress?.Report("Reading connection information...");
-            ReadConnectionInformation(options);
+            IsSearchOnlySession = usedSearchOnly;
+            if (!usedSearchOnly) progress?.Report("Reading connection information...");
+            ReadConnectionInformation(options, expectedTenantId, usedSearchOnly);
+
+            var mismatch = ConnectOptions.CheckTenant(expectedTenantId, TenantId, organization);
+            if (mismatch != null)
+            {
+                Run(ps => ps.AddCommand("Disconnect-ExchangeOnline").AddParameter("Confirm", false).AddParameter("ErrorAction", "SilentlyContinue"), convert: false);
+                IsConnected = false;
+                throw new PurviewException(mismatch);
+            }
         }
+
+        private bool Supports(string parameter) => _connectParameters.Count == 0 || _connectParameters.Contains(parameter);
 
         private void OpenRunspace()
         {
@@ -429,7 +529,8 @@ namespace SardaCloud.PurviewExplorer.Data
                 }
                 report.AppendLine($"Import-Module: OK ({sw.Elapsed.TotalSeconds:0.0} s)");
                 report.AppendLine("Connect-IPPSSession parameters: " + string.Join(", ", session._connectParameters.Where(p =>
-                    p == "UserPrincipalName" || p == "DisableWAM" || p == "AccessToken" || p == "CertificateThumbprint" || p == "CommandName" || p == "DelegatedOrganization").OrderBy(p => p)));
+                    p == "UserPrincipalName" || p == "DisableWAM" || p == "AccessToken" || p == "CertificateThumbprint" || p == "CommandName" ||
+                    p == "DelegatedOrganization" || p == "EnableSearchOnlySession").OrderBy(p => p)));
                 ok = true;
                 report.AppendLine();
                 report.AppendLine("Everything needed to connect is in place.");
@@ -484,10 +585,9 @@ namespace SardaCloud.PurviewExplorer.Data
             }
         }
 
-        private InvokeResult RunConnect(ConnectOptions o, string[] commandNames, bool disableWam)
+        private InvokeResult RunConnect(ConnectOptions o, string[] commandNames, bool disableWam, bool searchOnly)
         {
-            var parameters = ConnectOptions.ConnectParameters(o, commandNames, disableWam,
-                name => _connectParameters.Count == 0 || _connectParameters.Contains(name));
+            var parameters = ConnectOptions.ConnectParameters(o, commandNames, disableWam, Supports, searchOnly);
             return Run(ps =>
             {
                 ps.AddCommand("Connect-IPPSSession");
@@ -503,15 +603,21 @@ namespace SardaCloud.PurviewExplorer.Data
                 || message.IndexOf("broker", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
-        private void ReadConnectionInformation(ConnectOptions options)
+        private void ReadConnectionInformation(ConnectOptions options, string lookedUpTenantId, bool searchOnly)
         {
-            var info = Run(ps => ps.AddCommand("Get-ConnectionInformation").AddParameter("ErrorAction", "SilentlyContinue"), convert: true);
-            var current = info.Items.LastOrDefault(i => string.Equals(ValueFormatter.ToFlatText(i["State"]), "Connected", StringComparison.OrdinalIgnoreCase))
+            // In a search-only session Get-ConnectionInformation takes minutes and reports the session as Broken while
+            // its cmdlets work, so the identity comes from the options and the tenant lookup instead.
+            JsonMap current = null;
+            if (!searchOnly)
+            {
+                var info = Run(ps => ps.AddCommand("Get-ConnectionInformation").AddParameter("ErrorAction", "SilentlyContinue"), convert: true);
+                current = info.Items.LastOrDefault(i => string.Equals(ValueFormatter.ToFlatText(i["State"]), "Connected", StringComparison.OrdinalIgnoreCase))
                           ?? info.Items.LastOrDefault();
+            }
             var identity = ConnectOptions.ResolveIdentity(current, options);
             Organization = identity.Organization;
             Account = identity.Account;
-            TenantId = identity.TenantId;
+            TenantId = identity.TenantId ?? lookedUpTenantId;
         }
 
         public async Task<bool?> CommandExistsAsync(string name)

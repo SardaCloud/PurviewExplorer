@@ -69,6 +69,7 @@ namespace SardaCloud.PurviewExplorer.Data
                     TenantId = session.TenantId,
                     Environment = ConnectOptions.EnvironmentName(session.Environment),
                     ModuleVersion = session.Module?.Version?.ToString(),
+                    SearchOnlySession = session.IsSearchOnlySession,
                     CreatedUtc = DateTime.UtcNow,
                 });
             }
@@ -264,8 +265,12 @@ namespace SardaCloud.PurviewExplorer.Data
             if (exists == false)
             {
                 result.State = LoadState.Unavailable;
-                result.Message = $"{def.Cmdlet} isn't available in this session. Your account might not have a Purview role that includes it, " +
-                                 "or the feature isn't available in this tenant.";
+                result.Message = store.Source.SearchOnlySession == true
+                    ? $"{def.Cmdlet} isn't available in this session. This is a search-only session (the workaround for guest accounts), " +
+                      "which may not offer it; your account might also not have a Purview role that includes it, or the feature " +
+                      "isn't available in this tenant."
+                    : $"{def.Cmdlet} isn't available in this session. Your account might not have a Purview role that includes it, " +
+                      "or the feature isn't available in this tenant.";
                 return result;
             }
 

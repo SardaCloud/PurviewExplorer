@@ -285,7 +285,7 @@ namespace SardaCloud.PurviewExplorer.UI
             switch (src.Kind)
             {
                 case SourceKind.Live:
-                    sourceText = (connected ? "Connected: " : "Disconnected: ") + src.DisplayName;
+                    sourceText = (connected ? "Connected: " : "Disconnected: ") + src.DisplayName + (src.SearchOnlySession == true ? " (search-only session)" : "");
                     break;
                 case SourceKind.Snapshot:
                     sourceText = "Snapshot: " + Path.GetFileName(src.FilePath) + (string.IsNullOrEmpty(src.Organization) ? "" : " (" + src.Organization + ")");
@@ -327,6 +327,7 @@ namespace SardaCloud.PurviewExplorer.UI
                 if (dlg.ShowDialog(this) != DialogResult.OK) return;
                 options = dlg.Options;
             }
+            options.PreferSearchOnlySession = options.IsDelegated && _settings.PrefersSearchOnly(options.DelegatedOrganization, DateTime.UtcNow);
             _settings.Save();
             try
             {
@@ -338,6 +339,7 @@ namespace SardaCloud.PurviewExplorer.UI
                 return;
             }
             _settings.RememberOrganization(options.Mode == AuthMode.Certificate ? options.Organization : options.DelegatedOrganization);
+            if (options.IsDelegated) _settings.RecordSessionType(options.DelegatedOrganization, _ws.Store.Source.SearchOnlySession == true, DateTime.UtcNow);
             _settings.Save();
             if (_closeRequested) return;
             if (_tabs.SelectedIndex == 0 && _views.Count > 0) _tabs.SelectedIndex = 1;

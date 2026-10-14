@@ -40,7 +40,7 @@ namespace SardaCloud.PurviewExplorer.UI
             table.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
             table.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             table.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
-            var fields = new[] { "Source", "Organization", "Account", "Tenant ID", "Environment", "Taken", "File", "Module" };
+            var fields = new[] { "Source", "Organization", "Account", "Tenant ID", "Environment", "Taken", "File", "Module", "Session" };
             for (int i = 0; i < fields.Length; i++)
             {
                 var label = new Label { Text = fields[i] + ":", AutoSize = true, Margin = new Padding(0, Ui.S(3), Ui.S(8), Ui.S(3)) };
@@ -141,6 +141,7 @@ namespace SardaCloud.PurviewExplorer.UI
                 : src.CreatedUtc?.ToLocalTime().ToString("g"));
             Set("File", src.FilePath);
             Set("Module", string.IsNullOrEmpty(src.ModuleVersion) ? null : "ExchangeOnlineManagement " + src.ModuleVersion);
+            Set("Session", src.SearchOnlySession == null ? null : src.SearchOnlySession.Value ? "Search-only (workaround for guest accounts)" : "Standard");
         }
 
         private void Set(string field, string value) => _values[field].Text = string.IsNullOrEmpty(value) ? "\u2014" : value;

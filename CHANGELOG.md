@@ -7,6 +7,38 @@ All notable changes to Purview Explorer (called Purview Configuration Viewer in 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-10-14
+
+### Added
+
+- **Search-only sessions for guest accounts.** For some guest accounts Microsoft's service fails while setting up a
+  standard Security & Compliance session (the module reports only `Object reference not set to an instance of an
+  object.`). Purview Explorer now connects again automatically with `Connect-IPPSSession -EnableSearchOnlySession`
+  (ExchangeOnlineManagement 3.9.0 or later), which avoids the problem. Organizations where only a search-only
+  session worked are remembered for 14 days and start with one; if it fails, a standard session is tried.
+- The status bar (*search-only session*), a new *Session* field on the Summary tab and snapshots
+  (`source.sessionType`: `Standard` or `SearchOnly`) show which kind of session was used.
+- **Organization checks.** Before signing in, the other organization's or the certificate organization's domain is
+  looked up in Microsoft Entra ID, so a misspelled domain fails at once. After signing in, the session's tenant is
+  compared with the domain's; on a mismatch Purview Explorer disconnects before reading anything.
+- The prerequisite report lists whether the installed module supports `EnableSearchOnlySession`.
+- README: guest accounts and search-only sessions, and a troubleshooting table for connection messages.
+
+### Changed
+
+- Connection errors explain what happened and what to do (no Purview role, account not accepted by the other
+  organization, unknown organization, service failure for guest accounts, Web Account Manager unavailable) and
+  then show what the module reported.
+- A collection that isn't available in a search-only session says so, besides the usual reasons (role or feature).
+
+### Fixed
+
+- Connecting with a search-only session no longer waits minutes for `Get-ConnectionInformation`, which is slow
+  in such sessions and reports them as *Broken* while their cmdlets work; the organization, account and tenant ID
+  come from the connection options and the organization lookup instead.
+- When Web Account Manager couldn't open its window, the automatic retry with the browser can't succeed in the same
+  process (the module keeps using WAM); the message now says to restart Purview Explorer and choose the browser.
+
 ## [0.4.0] - 2026-10-13
 
 ### Added
@@ -96,6 +128,7 @@ application, read-only.
 - `/SelfTest`, which drives the whole UI with the demo data, and xUnit tests including hosted-runspace
   integration tests.
 
+[0.5.0]: https://github.com/SardaCloud/PurviewExplorer/releases/tag/v0.5.0
 [0.4.0]: https://github.com/SardaCloud/PurviewExplorer/releases/tag/v0.4.0
 [0.3.0]: https://github.com/SardaCloud/PurviewExplorer/releases/tag/v0.3.0
 [0.2.0]: https://github.com/SardaCloud/PurviewExplorer/releases/tag/v0.2.0

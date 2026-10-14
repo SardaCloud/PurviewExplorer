@@ -21,6 +21,10 @@ namespace SardaCloud.PurviewExplorer.Data
 
         public const int FormatVersion = 1;
 
+        /// <summary>Values of <c>source.sessionType</c> (added in 0.5.0; absent in older snapshots and the demo data).</summary>
+        public const string StandardSessionType = "Standard";
+        public const string SearchOnlySessionType = "SearchOnly";
+
         public static string Serialize(DataStore store)
         {
             var src = store.Source;
@@ -32,6 +36,7 @@ namespace SardaCloud.PurviewExplorer.Data
                 ["tenantId"] = src.TenantId,
                 ["environment"] = src.Environment,
                 ["moduleVersion"] = src.ModuleVersion,
+                ["sessionType"] = src.SearchOnlySession == null ? null : src.SearchOnlySession.Value ? SearchOnlySessionType : StandardSessionType,
             };
 
             var collections = new JsonMap();
@@ -113,6 +118,9 @@ namespace SardaCloud.PurviewExplorer.Data
                 TenantId = sourceMap["tenantId"] as string,
                 Environment = sourceMap["environment"] as string,
                 ModuleVersion = sourceMap["moduleVersion"] as string,
+                SearchOnlySession = string.Equals(sourceMap["sessionType"] as string, SearchOnlySessionType, StringComparison.OrdinalIgnoreCase) ? true
+                    : string.Equals(sourceMap["sessionType"] as string, StandardSessionType, StringComparison.OrdinalIgnoreCase) ? false
+                    : (bool?)null,
                 CreatedUtc = ParseDate(root["createdUtc"] as string),
                 Application = root["application"] as string,
             };

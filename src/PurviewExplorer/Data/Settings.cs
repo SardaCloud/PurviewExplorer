@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -27,6 +28,15 @@ namespace SardaCloud.PurviewExplorer.Data
         public List<string> RecentOrganizations { get; private set; } = new List<string>();
 
         public const int MaxRecentOrganizations = 10;
+
+        /// <summary>
+        /// Other organizations where only a search-only session worked, with when it last did (UTC). Connecting to them
+        /// again within <see cref="SearchOnlyMemory"/> starts with a search-only session, saving the failing attempt.
+        /// </summary>
+        public Dictionary<string, DateTime> SearchOnlyOrganizations { get; } = new Dictionary<string, DateTime>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>After this, a standard session is tried first again, in case the service no longer needs the workaround.</summary>
+        public static readonly TimeSpan SearchOnlyMemory = TimeSpan.FromDays(14);
 
         public CloudEnvironment Environment { get; set; }
         public string LastSnapshotFolder { get; set; }
@@ -79,6 +89,19 @@ namespace SardaCloud.PurviewExplorer.Data
             {
                 s.RememberOrganization(s.Organization); // settings from 0.3.0 or earlier
             }
+            if (m["searchOnlyOrganizations"] is JsonMap searchOnly)
+            {
+                var now = DateTime.UtcNow;
+                foreach (var kv in searchOnly)
+                {
+                    if (kv.Value is string text && !string.IsNullOrWhiteSpace(kv.Key)
+                        && DateTime.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out var when)
+                        && now - when < SearchOnlyMemory)
+                    {
+                        s.SearchOnlyOrganizations[kv.Key.Trim()] = when;
+                    }
+                }
+            }
             s.LastSnapshotFolder = m["lastSnapshotFolder"] as string;
             s.Maximized = m["maximized"] is bool max && max;
             if (m["bounds"] is List<object> bounds && bounds.Count == 4 && bounds.TrueForAll(o => o is long))
@@ -95,6 +118,20 @@ namespace SardaCloud.PurviewExplorer.Data
             RecentOrganizations.Insert(0, value);
             if (RecentOrganizations.Count > MaxRecentOrganizations)
                 RecentOrganizations.RemoveRange(MaxRecentOrganizations, RecentOrganizations.Count - MaxRecentOrganizations);
+        }
+
+        /// <summary>True when a search-only session was the one that worked for this organization within <see cref="SearchOnlyMemory"/>.</summary>
+        public bool PrefersSearchOnly(string organization, DateTime nowUtc) =>
+            !string.IsNullOrWhiteSpace(organization)
+            && SearchOnlyOrganizations.TryGetValue(organization.Trim(), out var when)
+            && nowUtc - when < SearchOnlyMemory;
+
+        /// <summary>Records which kind of session worked for another organization.</summary>
+        public void RecordSessionType(string organization, bool searchOnly, DateTime nowUtc)
+        {
+            if (string.IsNullOrWhiteSpace(organization)) return;
+            if (searchOnly) SearchOnlyOrganizations[organization.Trim()] = nowUtc;
+            else SearchOnlyOrganizations.Remove(organization.Trim());
         }
 
         private static void MigrateLegacyFile()
@@ -132,9 +169,19 @@ namespace SardaCloud.PurviewExplorer.Data
             ["organization"] = Organization,
             ["delegatedOrganization"] = DelegatedOrganization,
             ["recentOrganizations"] = RecentOrganizations.Cast<object>().ToList(),
+            ["searchOnlyOrganizations"] = SearchOnlyJson(),
             ["lastSnapshotFolder"] = LastSnapshotFolder,
             ["maximized"] = Maximized,
             ["bounds"] = Bounds == null ? null : new List<object> { (long)Bounds[0], (long)Bounds[1], (long)Bounds[2], (long)Bounds[3] },
         };
+
+        private JsonMap SearchOnlyJson()
+        {
+            if (SearchOnlyOrganizations.Count == 0) return null;
+            var map = new JsonMap();
+            foreach (var kv in SearchOnlyOrganizations.OrderBy(kv => kv.Key, StringComparer.OrdinalIgnoreCase))
+                map[kv.Key] = Json.FormatDate(DateTime.SpecifyKind(kv.Value, DateTimeKind.Utc));
+            return map;
+        }
     }
 }
